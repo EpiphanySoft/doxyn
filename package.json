@@ -1,0 +1,27 @@
+{
+  "name": "doxyn",
+  "version": "1.0.0",
+  "description": "Multi-language documentation extractor",
+  "main": "index.js",
+  "author": "Don Griffin",
+  "license": "MIT",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dongryphon/doxyn.git"
+  },
+  "keywords": [
+    "doc",
+    "documentation"
+  ],
+  "bugs": {
+    "url": "https://github.com/dongryphon/doxyn/issues"
+  },
+  "homepage": "https://github.com/dongryphon/doxyn#readme",
+  "dependencies": {
+    "event-emitter": "^0.3.4",
+    "yargs": "^4.8.0"
+  }
+}
