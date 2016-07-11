@@ -6,7 +6,7 @@
   "author": "Don Griffin",
   "license": "MIT",
   "scripts": {
-    "test": "test"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,11 @@
   "dependencies": {
     "event-emitter": "^0.3.4",
     "yargs": "^4.8.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-jasmine": "^2.4.0",
+    "jasmine-reporters": "^2.2.0",
+    "jasmine-terminal-reporter": "^1.0.2"
   }
 }
