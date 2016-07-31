@@ -263,6 +263,32 @@ describe('model/Sources', function () {
                 var c = this.src.chunkIndexFromOffset(A+B+1);
                 expect(c).toBe(-1);
             });
+        }); // chunkIndexFromOffset
+
+        describe('erase', function () {
+            describe('offset 0', function () {
+                it('should handle less then first chunk size', function () {
+                    this.src.erase(0, 3);
+
+                    var s = this.src.toString();
+                    expect(s).toBe(`0,2,4,${A-3}:1,3,5,${B}`);
+                });
+
+                it('should handle almost first chunk size', function () {
+                    this.src.erase(0, A-1);
+
+                    var s = this.src.toString();
+                    expect(s).toBe(`0,2,4,1:1,3,5,${B}`);
+                });
+
+                it('should handle exactly first chunk size', function () {
+                    debugger;
+                    this.src.erase(0, A);
+
+                    var s = this.src.toString();
+                    expect(s).toBe(`1,3,5,${B}`);
+                });
+            });
         });
-    });
+    }); // Sources
 });
