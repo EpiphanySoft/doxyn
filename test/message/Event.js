@@ -1,7 +1,9 @@
-const Message = require('../../lib/message/Message');
-const Event   = require('../../lib/message/Event');
-
 describe('message/Event', function () {
+    "use strict";
+
+    const Message = require('../../lib/message/Message');
+    const Event   = require('../../lib/message/Event');
+
     const Msg = Message.create();
 
     describe('no src, no extra message', function () {

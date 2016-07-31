@@ -1,6 +1,8 @@
-const Location = require('../../lib/model/Location');
-
 describe('model/Location', function () {
+    "use strict";
+
+    const Location = require('../../lib/model/Location');
+
     describe('from', function () {
         it('should accept Location instance and return it', function () {
             var c = new Location('foo.js', 427, 13);
