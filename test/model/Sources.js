@@ -283,6 +283,7 @@ describe('model/Sources', function () {
 
                     var s = this.src2.toString();
                     expect(s).toBe(`0,2,4,1:1,3,5,${B}`);
+
                     expect(this.src2.text).toBe(' World!!');
                 });
 
@@ -291,6 +292,7 @@ describe('model/Sources', function () {
 
                     var s = this.src2.toString();
                     expect(s).toBe(`1,3,5,${B}`);
+
                     expect(this.src2.text).toBe('World!!');
                 });
             });
@@ -301,6 +303,7 @@ describe('model/Sources', function () {
 
                     var s = this.src2.toString();
                     expect(s).toBe(`0,2,4,${A-3}:1,3,5,${B}`);
+
                     expect(this.src2.text).toBe('Ho World!!');
                 });
 
@@ -309,6 +312,7 @@ describe('model/Sources', function () {
 
                     var s = this.src2.toString();
                     expect(s).toBe(`0,2,4,2:1,3,5,${B}`);
+
                     expect(this.src2.text).toBe('H World!!');
                 });
 
@@ -317,6 +321,7 @@ describe('model/Sources', function () {
 
                     var s = this.src2.toString();
                     expect(s).toBe(`0,2,4,1:1,3,5,${B}`);
+
                     expect(this.src2.text).toBe('HWorld!!');
                 });
 
@@ -325,6 +330,7 @@ describe('model/Sources', function () {
 
                     var s = this.src2.toString();
                     expect(s).toBe(`0,2,4,1:1,3,5,${B-1}`);
+
                     expect(this.src2.text).toBe('Horld!!');
                 });
             });
@@ -335,6 +341,7 @@ describe('model/Sources', function () {
 
                     var s = this.src3.toString();
                     expect(s).toBe(`0,2,4,${A}:2,42,427,${C}`);
+
                     expect(this.src3.text).toBe('Hello  Yo!');
                 });
 
@@ -343,6 +350,7 @@ describe('model/Sources', function () {
 
                     var s = this.src3.toString();
                     expect(s).toBe(`0,2,4,${A-1}:2,42,427,${C}`);
+
                     expect(this.src3.text).toBe('Hello Yo!');
                 });
 
@@ -351,6 +359,7 @@ describe('model/Sources', function () {
 
                     var s = this.src3.toString();
                     expect(s).toBe(`0,2,4,${A}:2,42,427,${C-1}`);
+
                     expect(this.src3.text).toBe('Hello Yo!');
                 });
 
@@ -358,25 +367,39 @@ describe('model/Sources', function () {
                     this.src3.erase(A-1, B+2);
 
                     var s = this.src3.toString();
-                    expect(this.src3.text).toBe('HelloYo!');
                     expect(s).toBe(`0,2,4,${A-1}:2,42,427,${C-1}`);
+
+                    expect(this.src3.text).toBe('HelloYo!');
                 });
 
                 it('should remove middle and most of last chunk', function () {
                     this.src3.erase(A-1, B+C);
 
                     var s = this.src3.toString();
-                    expect(this.src3.text).toBe('Hello!');
                     expect(s).toBe(`0,2,4,${A-1}:2,42,427,1`);
+
+                    expect(this.src3.text).toBe('Hello!');
                 });
 
                 it('should remove middle and last chunk', function () {
                     this.src3.erase(A-1, B+C+1);
 
                     var s = this.src3.toString();
-                    expect(this.src3.text).toBe('Hello');
                     expect(s).toBe(`0,2,4,${A-1}`);
+
+                    expect(this.src3.text).toBe('Hello');
                 });
+            });
+        }); // erase
+
+        describe('insert', function () {
+            it('should insert at offset 0 of first block', function () {
+                this.src3.insert(0, 'Hey!');
+
+                var s = this.src3.toString();
+                expect(s).toBe(`0,2,4,${A+4}:1,3,5,${B}:2,42,427,${C}`);
+
+                expect(this.src3.text).toBe('Hey!Hello World!! Yo!');
             });
         });
     }); // Sources
