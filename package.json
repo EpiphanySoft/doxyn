@@ -6,7 +6,8 @@
   "author": "Don Griffin",
   "license": "MIT",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "win-debug-test": "node-debug %appdata%\\npm\\node_modules\\gulp\\bin\\gulp.js test"
   },
   "repository": {
     "type": "git",

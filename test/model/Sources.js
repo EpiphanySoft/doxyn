@@ -401,6 +401,114 @@ describe('model/Sources', function () {
 
                 expect(this.src3.text).toBe('Hey!Hello World!! Yo!');
             });
+
+            it('should insert at end of first block', function () {
+                this.src3.insert(A-1, 'Hey!');
+
+                var s = this.src3.toString();
+                expect(s).toBe(`0,2,4,${A+4}:1,3,5,${B}:2,42,427,${C}`);
+
+                expect(this.src3.text).toBe('HelloHey! World!! Yo!');
+            });
+
+            it('should insert at after first block', function () {
+                this.src3.insert(A, 'Hey!');
+
+                var s = this.src3.toString();
+                expect(s).toBe(`0,2,4,${A}:1,3,5,${B+4}:2,42,427,${C}`);
+
+                expect(this.src3.text).toBe('Hello Hey!World!! Yo!');
+            });
+        });
+
+        describe('spans', function () {
+            describe('first block', function () {
+                it('should handle offset 0, length 1', function () {
+                    var c = this.src3.chunks[0];
+
+                    expect(c.spans(0)).toBe(true);
+                });
+
+                it('should handle offset 0, length 3', function () {
+                    var c = this.src3.chunks[0];
+
+                    expect(c.spans(0, 3)).toBe(true);
+                });
+
+                it('should handle offset 0, full size', function () {
+                    var c = this.src3.chunks[0];
+
+                    expect(c.spans(0, A)).toBe(true);
+                });
+
+                it('should handle offset 0, overflow', function () {
+                    var c = this.src3.chunks[0];
+
+                    expect(c.spans(0, A+1)).toBe(false);
+                });
+
+                it('should handle offset 1, overflow', function () {
+                    var c = this.src3.chunks[0];
+
+                    expect(c.spans(1, A)).toBe(false);
+                });
+
+                it('should handle offset -1 from end', function () {
+                    var c = this.src3.chunks[0];
+
+                    expect(c.spans(A-1)).toBe(true);
+                });
+
+                it('should handle offset 1 beyond end', function () {
+                    var c = this.src3.chunks[0];
+
+                    expect(c.spans(A)).toBe(false);
+                });
+            });
+
+            describe('second block', function () {
+                it('should handle offset 0, length 1', function () {
+                    var c = this.src3.chunks[1];
+
+                    expect(c.spans(A)).toBe(true);
+                });
+
+                it('should handle offset 0, length 3', function () {
+                    var c = this.src3.chunks[1];
+
+                    expect(c.spans(A, 3)).toBe(true);
+                });
+
+                it('should handle offset 0, full size', function () {
+                    var c = this.src3.chunks[1];
+
+                    expect(c.spans(A, B)).toBe(true);
+                });
+
+                it('should handle offset 0, overflow', function () {
+                    var c = this.src3.chunks[1];
+
+                    expect(c.spans(A, B+1)).toBe(false);
+                });
+
+                it('should handle offset 1, overflow', function () {
+                    var c = this.src3.chunks[1];
+
+                    expect(c.spans(A+1, B)).toBe(false);
+                });
+
+                it('should handle offset -1 from end', function () {
+                    var c = this.src3.chunks[1];
+
+                    expect(c.spans(A+B-1)).toBe(true);
+                });
+
+                it('should handle offset 1 beyond end', function () {
+                    var c = this.src3.chunks[1];
+
+                    expect(c.spans(A+B)).toBe(false);
+                });
+            });
         });
     }); // Sources
 });
