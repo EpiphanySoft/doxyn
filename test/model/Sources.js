@@ -147,9 +147,11 @@ describe('model/Sources', function () {
         const A = 6;
         const B = 7;
         const C = 4;
+
         beforeEach(function () {
             this.src2 = new Sources(FILES, 'Hello World!!', `0,2,4,${A}:1,3,5,${B}`);
             this.src3 = new Sources(FILES, 'Hello World!! Yo!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
+            this.src4 = new Sources(FILES, 'He\nlo Wo\nld\n! Y\n!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
         });
 
         describe('first chunk', function () {
@@ -213,6 +215,38 @@ describe('model/Sources', function () {
                 expect(c.text).toBe('World!!');
             });
         });
+
+        describe('at', function () {
+            describe('first block', function () {
+                it('should handle offset 0', function () {
+                    var c = this.src4.at(0);
+                    var s = c.toString();
+
+                    expect(s).toBe('Foo.js:2:4');
+                });
+
+                it('should handle offset 3', function () {
+                    var c = this.src4.at(3);
+                    var s = c.toString();
+
+                    expect(s).toBe('Foo.js:3:4');
+                });
+
+                it('should handle offset 0, full size', function () {
+                    var c = this.src4.at(3);
+                    var s = c.toString();
+
+                    expect(s).toBe('Foo.js:3:4');
+                });
+
+                it('should handle offset -1 from end', function () {
+                    var c = this.src4.at(A-1);
+                    var s = c.toString();
+
+                    expect(s).toBe('Foo.js:3:6');
+                });
+            });
+        }); // at
         
         describe('chunkIndexFromOffset', function () {
             it('should handle offset -1', function () {
@@ -267,159 +301,6 @@ describe('model/Sources', function () {
                 expect(c).toBe(-1);
             });
         }); // chunkIndexFromOffset
-
-        describe('erase', function () {
-            describe('offset 0', function () {
-                it('should handle less then first chunk size', function () {
-                    this.src2.erase(0, 3);
-
-                    var s = this.src2.toString();
-                    expect(s).toBe(`0,2,4,${A-3}:1,3,5,${B}`);
-                    expect(this.src2.text).toBe('lo World!!');
-                });
-
-                it('should handle almost first chunk size', function () {
-                    this.src2.erase(0, A-1);
-
-                    var s = this.src2.toString();
-                    expect(s).toBe(`0,2,4,1:1,3,5,${B}`);
-
-                    expect(this.src2.text).toBe(' World!!');
-                });
-
-                it('should handle exactly first chunk size', function () {
-                    this.src2.erase(0, A);
-
-                    var s = this.src2.toString();
-                    expect(s).toBe(`1,3,5,${B}`);
-
-                    expect(this.src2.text).toBe('World!!');
-                });
-            });
-
-            describe('offset first half of first chunk', function () {
-                it('should handle less then first chunk size', function () {
-                    this.src2.erase(1, 3);
-
-                    var s = this.src2.toString();
-                    expect(s).toBe(`0,2,4,${A-3}:1,3,5,${B}`);
-
-                    expect(this.src2.text).toBe('Ho World!!');
-                });
-
-                it('should handle almost first chunk size', function () {
-                    this.src2.erase(1, A-2);
-
-                    var s = this.src2.toString();
-                    expect(s).toBe(`0,2,4,2:1,3,5,${B}`);
-
-                    expect(this.src2.text).toBe('H World!!');
-                });
-
-                it('should handle exactly first chunk size', function () {
-                    this.src2.erase(1, A-1);
-
-                    var s = this.src2.toString();
-                    expect(s).toBe(`0,2,4,1:1,3,5,${B}`);
-
-                    expect(this.src2.text).toBe('HWorld!!');
-                });
-
-                it('should handle one char of second chunk size', function () {
-                    this.src2.erase(1, A);
-
-                    var s = this.src2.toString();
-                    expect(s).toBe(`0,2,4,1:1,3,5,${B-1}`);
-
-                    expect(this.src2.text).toBe('Horld!!');
-                });
-            });
-
-            describe('multi-chunk', function () {
-                it('should remove middle chunk on exact erase', function () {
-                    this.src3.erase(A, B);
-
-                    var s = this.src3.toString();
-                    expect(s).toBe(`0,2,4,${A}:2,42,427,${C}`);
-
-                    expect(this.src3.text).toBe('Hello  Yo!');
-                });
-
-                it('should remove middle chunk on cross-over w/exact end', function () {
-                    this.src3.erase(A-1, B+1);
-
-                    var s = this.src3.toString();
-                    expect(s).toBe(`0,2,4,${A-1}:2,42,427,${C}`);
-
-                    expect(this.src3.text).toBe('Hello Yo!');
-                });
-
-                it('should remove middle chunk on overflow by 1', function () {
-                    this.src3.erase(A, B+1);
-
-                    var s = this.src3.toString();
-                    expect(s).toBe(`0,2,4,${A}:2,42,427,${C-1}`);
-
-                    expect(this.src3.text).toBe('Hello Yo!');
-                });
-
-                it('should remove middle chunk on cross-over w/overflow by 1', function () {
-                    this.src3.erase(A-1, B+2);
-
-                    var s = this.src3.toString();
-                    expect(s).toBe(`0,2,4,${A-1}:2,42,427,${C-1}`);
-
-                    expect(this.src3.text).toBe('HelloYo!');
-                });
-
-                it('should remove middle and most of last chunk', function () {
-                    this.src3.erase(A-1, B+C);
-
-                    var s = this.src3.toString();
-                    expect(s).toBe(`0,2,4,${A-1}:2,42,427,1`);
-
-                    expect(this.src3.text).toBe('Hello!');
-                });
-
-                it('should remove middle and last chunk', function () {
-                    this.src3.erase(A-1, B+C+1);
-
-                    var s = this.src3.toString();
-                    expect(s).toBe(`0,2,4,${A-1}`);
-
-                    expect(this.src3.text).toBe('Hello');
-                });
-            });
-        }); // erase
-
-        describe('insert', function () {
-            it('should insert at offset 0 of first block', function () {
-                this.src3.insert(0, 'Hey!');
-
-                var s = this.src3.toString();
-                expect(s).toBe(`0,2,4,${A+4}:1,3,5,${B}:2,42,427,${C}`);
-
-                expect(this.src3.text).toBe('Hey!Hello World!! Yo!');
-            });
-
-            it('should insert at end of first block', function () {
-                this.src3.insert(A-1, 'Hey!');
-
-                var s = this.src3.toString();
-                expect(s).toBe(`0,2,4,${A+4}:1,3,5,${B}:2,42,427,${C}`);
-
-                expect(this.src3.text).toBe('HelloHey! World!! Yo!');
-            });
-
-            it('should insert at after first block', function () {
-                this.src3.insert(A, 'Hey!');
-
-                var s = this.src3.toString();
-                expect(s).toBe(`0,2,4,${A}:1,3,5,${B+4}:2,42,427,${C}`);
-
-                expect(this.src3.text).toBe('Hello Hey!World!! Yo!');
-            });
-        });
 
         describe('spans', function () {
             describe('first block', function () {
@@ -509,6 +390,50 @@ describe('model/Sources', function () {
                     expect(c.spans(A+B)).toBe(false);
                 });
             });
-        });
+
+            describe('last block', function () {
+                it('should handle offset 0, length 1', function () {
+                    var c = this.src3.chunks[2];
+
+                    expect(c.spans(A+B)).toBe(true);
+                });
+
+                it('should handle offset 0, length 3', function () {
+                    var c = this.src3.chunks[2];
+
+                    expect(c.spans(A+B, 2)).toBe(true);
+                });
+
+                it('should handle offset 0, full size', function () {
+                    var c = this.src3.chunks[2];
+
+                    expect(c.spans(A+B, C)).toBe(true);
+                });
+
+                it('should handle offset 0, overflow', function () {
+                    var c = this.src3.chunks[2];
+
+                    expect(c.spans(A+B, C+1)).toBe(false);
+                });
+
+                it('should handle offset 1, overflow', function () {
+                    var c = this.src3.chunks[2];
+
+                    expect(c.spans(A+B+1, C)).toBe(false);
+                });
+
+                it('should handle offset -1 from end', function () {
+                    var c = this.src3.chunks[2];
+
+                    expect(c.spans(A+B+C-1)).toBe(true);
+                });
+
+                it('should handle offset 1 beyond end', function () {
+                    var c = this.src3.chunks[2];
+
+                    expect(c.spans(A+B+C)).toBe(false);
+                });
+            });
+        }); // spans
     }); // Sources
 });
