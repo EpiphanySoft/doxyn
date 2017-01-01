@@ -1,8 +1,27 @@
-var argv = require('yargs').argv;
+const { Command, Container, Help } = require('switchit');
 
-function main (args) {
-    console.log('Doxyn - Documentation Extractor');
-    console.log('WIP');
+class Build extends Command {
+    execute () {
+        console.log('WIP');
+    }
 }
 
-main(argv);
+class Main extends Container {
+    run () {
+        console.log('Doxyn - Documentation Extractor');
+
+        return super.run();
+    }
+}
+
+Main.define({
+    commands: [
+        Build,
+        Help
+    ]
+});
+
+new Main().run().then(() => {},
+e => {
+    console.log(`ERR: `, e);
+});

@@ -1,9 +1,14 @@
+'use strict';
+
+/* global describe, it, afterEach, beforeEach */
+
+const Assert = require('assertly');
+const expect = Assert.expect;
+
+const Message = require('../../../lib/message/Message');
+const Event   = require('../../../lib/message/Event');
+
 describe('message/Event', function () {
-    "use strict";
-
-    const Message = require('../../lib/message/Message');
-    const Event   = require('../../lib/message/Event');
-
     const Msg = Message.create();
 
     describe('no src, no extra message', function () {
@@ -12,9 +17,9 @@ describe('message/Event', function () {
         });
 
         it('toString should be correct', function () {
-            var s = this.event.toString();
+            let s = this.event.toString();
 
-            expect(s).toBe('D1000: Tag is not valid in this context');
+            expect(s).to.be('D1000: Tag is not valid in this context');
         });
     });
 
@@ -24,9 +29,9 @@ describe('message/Event', function () {
         });
 
         it('toString should be correct', function () {
-            var s = this.event.toString();
+            let s = this.event.toString();
 
-            expect(s).toBe('D1000: Tag is not valid in this context (Hi 42)');
+            expect(s).to.be('D1000: Tag is not valid in this context (Hi 42)');
         });
     });
 });

@@ -6,8 +6,10 @@
   "author": "Don Griffin",
   "license": "MIT",
   "scripts": {
-    "test": "gulp test",
-    "win-debug-test": "node-debug %appdata%\\npm\\node_modules\\gulp\\bin\\gulp.js test"
+    "gulp-test": "gulp test",
+    "gulp-win-debug-test": "node-debug %appdata%\\npm\\node_modules\\gulp\\bin\\gulp.js test",
+    "debug": "devtool node_modules/mocha/bin/_mocha -qc --break -- ./test/specs/**/*.js",
+    "test": "mocha ./test/specs/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -23,12 +25,10 @@
   "homepage": "https://github.com/dongryphon/doxyn#readme",
   "dependencies": {
     "event-emitter": "^0.3.4",
-    "yargs": "^4.8.0"
+    "switchit": "^1.0.7"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-jasmine": "^2.4.0",
-    "jasmine-reporters": "^2.2.0",
-    "jasmine-terminal-reporter": "^1.0.2"
+    "assertly": "^1.0.1",
+    "mocha": "^3.1.0"
   }
 }
