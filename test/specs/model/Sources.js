@@ -301,18 +301,34 @@ describe('model/Sources', function () {
                     expect(s).to.be('Foo.js:3:4');
                 });
 
-                it('should handle offset 0, full size', function () {
-                    let c = this.src4.at(3);
-                    let s = c.toString();
-
-                    expect(s).to.be('Foo.js:3:4');
-                });
-
                 it('should handle offset -1 from end', function () {
                     let c = this.src4.at(A-1);
                     let s = c.toString();
 
                     expect(s).to.be('Foo.js:3:6');
+                });
+            });
+
+            describe('second block', function () {
+                it('should handle offset 0', function () {
+                    let c = this.src4.at(A);
+                    let s = c.toString();
+
+                    expect(s).to.be('Bar.js:3:5');
+                });
+
+                it('should handle line 2', function () {
+                    let c = this.src4.at(A + 4);
+                    let s = c.toString();
+
+                    expect(s).to.be('Bar.js:4:6');
+                });
+
+                it('should handle offset -1 from end', function () {
+                    let c = this.src4.at(A + B - 1);
+                    let s = c.toString();
+
+                    expect(s).to.be('Bar.js:5:5');
                 });
             });
         }); // at
