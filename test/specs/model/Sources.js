@@ -188,6 +188,70 @@ describe('model/Sources', function () {
                 let c = this.src2.chunks[0];
                 expect(c.text).to.be('Hello ');
             });
+
+            it('should have correct lineCount', function () {
+                let c = this.src2.chunks[0];
+                let n = c.lineCount();
+                expect(n).to.be(1);
+
+                c = this.src3.chunks[0];
+                n = c.lineCount();
+                expect(n).to.be(1);
+
+                c = this.src4.chunks[0];
+                n = c.lineCount();
+                expect(n).to.be(2);
+            });
+
+            it('should have correct lineLength', function () {
+                let c = this.src2.chunks[0];
+                let n = c.lineLength(0);
+                expect(n).to.be(A);
+
+                c = this.src3.chunks[0];
+                n = c.lineLength(0);
+                expect(n).to.be(A);
+
+                c = this.src4.chunks[0];
+                n = c.lineLength(0);
+                expect(n).to.be(3);
+                n = c.lineLength(1);
+                expect(n).to.be(3);
+                n = c.lineLength(2);
+                expect(n).to.be(-1);
+            });
+
+            it('should be able to split offsets into lines and columns', function () {
+                let c = this.src4.chunks[0];
+                let [line, col] = c.splitOffset(1);
+
+                expect(line).to.be(0);
+                expect(col).to.be(1);
+
+                [line, col] = c.splitOffset(3);
+
+                expect(line).to.be(1);
+                expect(col).to.be(0);
+
+                [line, col] = c.splitOffset(4);
+
+                expect(line).to.be(1);
+                expect(col).to.be(1);
+
+                [line, col] = c.splitOffset(5);
+
+                expect(line).to.be(1);
+                expect(col).to.be(2);
+            });
+
+            it('should be able to splitChunkByLine', function () {
+                let src = this.src4;
+                let c = src.chunks[0];
+                let next = src.splitChunkByLine(c, 1);
+                let s = src.toString();
+
+                expect(s).to.be(`0,2,4,${A/2}:0,3,4,${A/2}:1,3,5,${B}:2,42,427,${C}`);
+            });
         });
 
         describe('second chunk', function () {
@@ -223,7 +287,7 @@ describe('model/Sources', function () {
 
         describe('at', function () {
             describe('first block', function () {
-                it('should handle offset 0', function () {
+                it('should handle offset 0', function () {debugger
                     let c = this.src4.at(0);
                     let s = c.toString();
 
