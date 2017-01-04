@@ -521,28 +521,198 @@ describe('model/Sources', function () {
                 this.src = new Sources(FILES,
                     //         1111111111222222222233333333
                     [//  4567890123456789012345678901234567
-                        'Hello\n' +                             // 11  (6)
-                        'World! This is a test\n' +             // 12  (22)
-                        'of multi-line blocks!\n',              // 13  (22)
+                        'Hello\n' +                             // [0] 11  (6)
+                        'World! This is a test\n' +             // [1] 12  (22)
+                        'of multi-line blocks!\n',              // [2] 13  (22)
                                                                 //---- = 50
                     //   11222222222233333333334444444444
                     //   89012345678901234567890123456789
-                        'This is another block\n' +             // 100 (22)
-                        'with multiple lines.\n',               // 101 (21)
+                        'This is another block\n' +             // [3] 100 (22)
+                        'with multiple lines.\n',               // [4] 101 (21)
                                                                 //---- = 43
                     //   1111112222222222333333333344444
                     //   4567890123456789012345678901234
-                        'This block has only one line.'         // 200 (29)
+                        'This block has only one line.'         // [5] 200 (29)
                     ].join(''),
                     `0,11,4,${A}:1,100,18,${B}:2,200,14,${C}`);
             });
 
             describe('replace', function () {
+                it('should split single-line chunks at the front', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # This block has only one line.
+                    //      ^=-^
+                    //    #/
+                    src.replace(A + B, 4, 'While this');
+
+                    expect(chunks.length).to.be(4); // one intra-line split
+
+                    let lines = src.text.split('\n');
+                    expect(lines[5]).to.be('While this block has only one line.');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:` +
+                        `1,100,18,${B}:` +
+                        `2,200,14,${'While this'.length}:` +
+                        `2,200,${14 + 4},${C - 4}`);
+                });
+
+                it('should split single-line chunks in the middle', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # This block has only one line.
+                    //                          ^-^
+                    //    #/
+                    src.replace(A + B + 20, 3, 'a single');
+
+                    expect(chunks.length).to.be(4); // one intra-line split
+
+                    let lines = src.text.split('\n');
+                    expect(lines[5]).to.be('This block has only a single line.');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:` +
+                        `1,100,18,${B}:` +
+                        `2,200,14,${20 + 'a single'.length}:` +
+                        `2,200,${14 + 20 + 3},${C - 20 - 3}`);
+                });
+
+                it('should split single-line chunks only if necessary', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # This block has only one line.
+                    //                          ^-------^
+                    //    #/
+                    src.replace(A + B + C - 9, 9, 'a single line.');
+
+                    expect(chunks.length).to.be(3); // no splits
+
+                    let lines = src.text.split('\n');
+                    expect(lines[5]).to.be('This block has only a single line.');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:` +
+                        `1,100,18,${B}:` +
+                        `2,200,14,${C}`);
+                });
+
+                it('should split chunks above as necessary', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # This is another block
+                    //    # with multiple lines.
+                    //           ^------^
+                    //    #/
+                    src.replace(A + B0 + 5, 8, '2+');
+
+                    expect(chunks.length).to.be(5); // 1 line split and 1 intra-line
+
+                    let lines = src.text.split('\n');
+                    expect(lines[4]).to.be('with 2+ lines.');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:` +
+                        `1,100,18,${B0}:` +
+                        `1,101,18,${5 + '2+'.length}:` +
+                        `1,101,${18 + 5 + 8},${B1 - 5 - 8}:` +
+                        `2,200,14,${C}`);
+                });
+
+                it('should split chunks above but lines only if necessary', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # This is another block
+                    //    # with multiple lines.
+                    //                         ^
+                    //    #/
+                    src.replace(A + B - 2, 2, ' of text.\n');
+
+                    expect(chunks.length).to.be(4); // 1 line split
+
+                    let lines = src.text.split('\n');
+                    expect(lines[4]).to.be('with multiple lines of text.');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:` +
+                        `1,100,18,${B0}:` +
+                        `1,101,18,${B1 - 2 + ' of text.\n'.length}:` +
+                        `2,200,14,${C}`);
+                });
+
+                it('should split chunks below as necessary', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # This is another block
+                    //      ^--^
+                    //    # with multiple lines.
+                    //    #/
+                    src.replace(A, 4, 'And this');
+
+                    expect(chunks.length).to.be(5); // 1 line split and 1 intra-line
+
+                    let lines = src.text.split('\n');
+                    expect(lines[3]).to.be('And this is another block');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:` +
+                        `1,100,18,${'And this'.length}:` +
+                        `1,100,${18 + 4},${B0 - 4}:` +
+                        `1,101,18,${B1}:` +
+                        `2,200,14,${C}`);
+                });
+
+                it('should not split chunks when unnecessary', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # This is another block
+                    //      ^--^
+                    //    # with multiple lines.
+                    //    #/
+                    src.replace(A, 4, 'Here');
+
+                    expect(chunks.length).to.be(3);
+
+                    let lines = src.text.split('\n');
+                    expect(lines[3]).to.be('Here is another block');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:` +
+                        `1,100,18,${B}:` +
+                        `2,200,14,${C}`);
+                });
+
                 it('should split chunks above and below as necessary', function () {
                     let src = this.src;
                     let chunks = src.chunks;
-                    let c0 = chunks[0];
-                    let c1 = chunks[1];
 
                     expect(chunks.length).to.be(3);
 
