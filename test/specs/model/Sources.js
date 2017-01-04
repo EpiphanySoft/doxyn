@@ -223,22 +223,22 @@ describe('model/Sources', function () {
 
             it('should be able to split offsets into lines and columns', function () {
                 let c = this.src4.chunks[0];
-                let [line, col] = c.splitOffset(1);
+                let [line, col] = c.offsetToLineColumn(1);
 
                 expect(line).to.be(0);
                 expect(col).to.be(1);
 
-                [line, col] = c.splitOffset(3);
+                [line, col] = c.offsetToLineColumn(3);
 
                 expect(line).to.be(1);
                 expect(col).to.be(0);
 
-                [line, col] = c.splitOffset(4);
+                [line, col] = c.offsetToLineColumn(4);
 
                 expect(line).to.be(1);
                 expect(col).to.be(1);
 
-                [line, col] = c.splitOffset(5);
+                [line, col] = c.offsetToLineColumn(5);
 
                 expect(line).to.be(1);
                 expect(col).to.be(2);
@@ -287,7 +287,7 @@ describe('model/Sources', function () {
 
         describe('at', function () {
             describe('first block', function () {
-                it('should handle offset 0', function () {debugger
+                it('should handle offset 0', function () {
                     let c = this.src4.at(0);
                     let s = c.toString();
 
@@ -504,5 +504,378 @@ describe('model/Sources', function () {
                 });
             });
         }); // spans
+
+        describe('split and replace', function () {
+            const A0 = 6;
+            const A1 = 22;
+            const A2 = 22;
+            const A = A0 + A1 + A2;
+
+            const B0 = 22;
+            const B1 = 21;
+            const B = B0 + B1;
+
+            const C = 29;
+
+            beforeEach(function () {
+                this.src = new Sources(FILES,
+                    //         1111111111222222222233333333
+                    [//  4567890123456789012345678901234567
+                        'Hello\n' +                             // 11  (6)
+                        'World! This is a test\n' +             // 12  (22)
+                        'of multi-line blocks!\n',              // 13  (22)
+                                                                //---- = 50
+                    //   11222222222233333333334444444444
+                    //   89012345678901234567890123456789
+                        'This is another block\n' +             // 100 (22)
+                        'with multiple lines.\n',               // 101 (21)
+                                                                //---- = 43
+                    //   1111112222222222333333333344444
+                    //   4567890123456789012345678901234
+                        'This block has only one line.'         // 200 (29)
+                    ].join(''),
+                    `0,11,4,${A}:1,100,18,${B}:2,200,14,${C}`);
+            });
+
+            describe('replace', function () {
+                it('should split chunks above and below as necessary', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c0 = chunks[0];
+                    let c1 = chunks[1];
+
+                    expect(chunks.length).to.be(3);
+
+                    //   /##
+                    //    # Hello
+                    //    # World! This is a test
+                    //             ^-----^
+                    //    # of multi-line blocks!
+                    //    #/
+                    src.replace(A0 + 7, 7, 'Here goes');
+
+                    expect(chunks.length).to.be(6); // 2 line splits and 1 intra-line
+
+                    let lines = src.text.split('\n');
+                    expect(lines[1]).to.be('World! Here goes a test');
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A0}:` +
+                        `0,12,4,${7 + 'Here goes'.length}:` +
+                        `0,12,${4 + 7 + 7},${A1 - 7 - 7}:` +
+                        `0,13,4,${A2}:` +
+                        `1,100,18,${B}:` +
+                        `2,200,14,${C}`);
+                });
+            });
+
+            describe('offsetToLineColumn', function () {
+                it('should work for chunks[0] line 1', function () {
+                    let lc, c = this.src.chunkFromOffset(0);
+
+                    expect(c).to.be(this.src.chunks[0]);
+
+                    lc = c.offsetToLineColumn(0);
+                    expect(lc).to.equal([0,0]);
+
+                    lc = c.offsetToLineColumn(3);
+                    expect(lc).to.equal([0,3]);
+
+                    lc = c.offsetToLineColumn(3);
+                    expect(lc).to.equal([0,3]);
+
+                    lc = c.offsetToLineColumn(A0 - 1);
+                    expect(lc).to.equal([ 0, A0 - 1 ]);
+                });
+
+                it('should work for chunks[0] line 2', function () {
+                    let lc, c = this.src.chunkFromOffset(0);
+
+                    expect(c).to.be(this.src.chunks[0]);
+
+                    lc = c.offsetToLineColumn(A0);
+                    expect(lc).to.equal([1,0]);
+
+                    lc = c.offsetToLineColumn(A0 + A1 - 1);
+                    expect(lc).to.equal([1, A1 - 1]);
+                });
+
+                it('should work for chunks[0] line 3', function () {
+                    let lc, c = this.src.chunkFromOffset(0);
+
+                    expect(c).to.be(this.src.chunks[0]);
+
+                    lc = c.offsetToLineColumn(A0 + A1);
+                    expect(lc).to.equal([2, 0]);
+
+                    lc = c.offsetToLineColumn(A0 + A1 + 10);
+                    expect(lc).to.equal([2, 10]);
+
+                    lc = c.offsetToLineColumn(A0 + A1 + A2 - 1);
+                    expect(lc).to.equal([2, A2 - 1]);
+
+                    lc = c.offsetToLineColumn(A);
+                    expect(lc).to.be(null);
+                });
+
+                it('should work for chunks[1] line 1', function () {
+                    let lc, c = this.src.chunkFromOffset(A);
+
+                    expect(c).to.be(this.src.chunks[1]);
+
+                    lc = c.offsetToLineColumn(A);
+                    expect(lc).to.equal([0,0]);
+
+                    lc = c.offsetToLineColumn(A + 11);
+                    expect(lc).to.equal([ 0, 11 ]);
+
+                    lc = c.offsetToLineColumn(A + B0 - 1);
+                    expect(lc).to.equal([ 0, B0 - 1 ]);
+                });
+
+                it('should work for chunks[1] line 2', function () {
+                    let lc, c = this.src.chunkFromOffset(A);
+
+                    expect(c).to.be(this.src.chunks[1]);
+
+                    lc = c.offsetToLineColumn(A + B0);
+                    expect(lc).to.equal([1,0]);
+
+                    lc = c.offsetToLineColumn(A + B0 + 11);
+                    expect(lc).to.equal([ 1, 11 ]);
+
+                    lc = c.offsetToLineColumn(A + B0 + B1 - 1);
+                    expect(lc).to.equal([ 1, B1 - 1 ]);
+
+                    lc = c.offsetToLineColumn(A + B);
+                    expect(lc).to.be(null);
+                });
+
+                it('should work for chunks[2] line 1', function () {
+                    let lc, c = this.src.chunkFromOffset(A + B);
+
+                    expect(c).to.be(this.src.chunks[2]);
+                    expect(this.src.chunks.length).to.be(3);
+
+                    lc = c.offsetToLineColumn(A + B);
+                    expect(lc).to.equal([0,0]);
+
+                    lc = c.offsetToLineColumn(A + B + 11);
+                    expect(lc).to.equal([ 0, 11 ]);
+
+                    lc = c.offsetToLineColumn(A + B + C - 1);
+                    expect(lc).to.equal([ 0, C - 1 ]);
+
+                    lc = c.offsetToLineColumn(A + B + C);
+                    expect(lc).to.be(null);
+                });
+            }); // offsetToLineColumn
+
+            describe('splitChunkByLine', function () {
+                it('should be able to split chunks[0] at line 1', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c = chunks[0];
+
+                    expect(chunks.length).to.be(3);
+
+                    let cn = src.splitChunkByLine(c, 1);  // keep 1 line
+
+                    expect(chunks.length).to.be(4);
+
+                    expect(chunks[0]).to.be(c);
+                    expect(chunks[1]).to.be(cn);
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A0}:0,12,4,${A-A0}:1,100,18,${B}:2,200,14,${C}`);
+                });
+
+                it('should be able to split chunks[0] at line 2', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c = chunks[0];
+
+                    expect(chunks.length).to.be(3);
+
+                    let cn = src.splitChunkByLine(c, 2);  // keep 2 lines
+
+                    expect(chunks.length).to.be(4);
+
+                    expect(chunks[0]).to.be(c);
+                    expect(chunks[1]).to.be(cn);
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A0+A1}:0,13,4,${A2}:1,100,18,${B}:2,200,14,${C}`);
+                });
+
+                it('should be able to split chunks[0] at 2 lines and 1 column', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c = chunks[0];
+                    let c1 = chunks[1];
+                    let c2 = chunks[2];
+
+                    expect(chunks.length).to.be(3);
+
+                    let cn = src.splitChunkByLine(c, 1);  // keep 1 line
+
+                    expect(chunks.length).to.be(4);
+                    expect(chunks).to.be.same([c, cn, c1, c2]);
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A0}:0,12,4,${A-A0}:1,100,18,${B}:2,200,14,${C}`);
+
+                    let cn2 = src.splitChunkByLine(cn, 1);
+
+                    expect(chunks.length).to.be(5);
+                    expect(chunks).to.be.same([c, cn, cn2, c1, c2]);
+
+                    s = src.toString();
+                    expect(s).to.be(`0,11,4,${A0}:` +
+                        `0,12,4,${A1}:` +
+                        `0,13,4,${A2}:` +
+                        `1,100,18,${B}:` +
+                        `2,200,14,${C}`);
+
+                    let cn3 = src.splitChunkIntraLine(cn, 10);
+
+                    expect(chunks.length).to.be(6);
+                    expect(chunks).to.be.same([c, cn, cn3, cn2, c1, c2]);
+
+                    s = src.toString();
+                    expect(s).to.be(`0,11,4,${A0}:` +
+                        `0,12,4,10:` +
+                        `0,12,14,${A1-10}:` +
+                        `0,13,4,${A2}:` +
+                        `1,100,18,${B}:` +
+                        `2,200,14,${C}`);
+                });
+
+                it('should be able to split chunks[1] at line 1', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c0 = chunks[0];
+                    let c = chunks[1];
+
+                    expect(chunks.length).to.be(3);
+
+                    let cn = src.splitChunkByLine(c, 1);  // keep 1 line
+
+                    expect(chunks.length).to.be(4);
+
+                    expect(chunks[0]).to.be(c0);
+                    expect(chunks[1]).to.be(c);
+                    expect(chunks[2]).to.be(cn);
+
+                    let s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:1,100,18,${B0}:1,101,18,${B1}:2,200,14,${C}`);
+                });
+
+                it('should fail on chunk[0] if line number is out of range', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c = chunks[0];
+
+                    expect(chunks.length).to.be(3);
+
+                    expect(() => {
+                        let cn = src.splitChunkByLine(c, 3);  // keep 3 lines
+
+                    }).to.exactly.throw(`Cannot split 3 line chunk after line 3`);
+
+                    expect(chunks.length).to.be(3);
+                });
+
+                it('should fail on chunk[1] if line number is out of range', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c1 = chunks[1];
+
+                    expect(chunks.length).to.be(3);
+
+                    expect(() => {
+                        let cn = src.splitChunkByLine(c1, 2);  // keep 2 lines
+
+                    }).to.exactly.throw(`Cannot split 2 line chunk after line 2`);
+
+                    expect(chunks.length).to.be(3);
+                });
+
+                it('should fail on chunk[2] if line number is out of range', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c = chunks[2];
+
+                    expect(chunks.length).to.be(3);
+
+                    expect(() => {
+                        let cn = src.splitChunkByLine(c, 1);
+
+                    }).to.exactly.throw(`Cannot split 1 line chunk by lines`);
+
+                    expect(chunks.length).to.be(3);
+                });
+            }); // splitChunkByLine
+
+            describe('splitChunkIntraLine', function () {
+                it('should be able to split chunks[2]', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c0 = chunks[0];
+                    let c1 = chunks[1];
+                    let c = chunks[2];
+
+                    expect(chunks.length).to.be(3);
+
+                    let cn = src.splitChunkIntraLine(c, 10);  // at column offset 10
+
+                    expect(chunks.length).to.be(4);
+
+                    expect(chunks[0]).to.be(c0);
+                    expect(chunks[1]).to.be(c1);
+                    expect(chunks[2]).to.be(c);
+                    expect(chunks[3]).to.be(cn);
+
+                    let s = c.toString();
+                    expect(s).to.be(`Zip.js,200,14,10`);
+
+                    s = cn.toString();
+                    expect(s).to.be(`Zip.js,200,24,${C-10}`);
+
+                    s = src.toString();
+                    expect(s).to.be(`0,11,4,${A}:1,100,18,${B}:2,200,14,10:2,200,24,${C-10}`);
+                });
+
+                it('should fail on multi-line chunks[0]', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c = chunks[0];
+
+                    expect(chunks.length).to.be(3);
+
+                    expect(() => {
+                        let cn = src.splitChunkIntraLine(c, 3);
+
+                    }).to.exactly.throw(`Cannot do intra-line split on multi-line chunks`);
+
+                    expect(chunks.length).to.be(3);
+                });
+
+                it('should fail on multi-line chunks[1]', function () {
+                    let src = this.src;
+                    let chunks = src.chunks;
+                    let c = chunks[1];
+
+                    expect(chunks.length).to.be(3);
+
+                    expect(() => {
+                        let cn = src.splitChunkIntraLine(c, 3);
+
+                    }).to.exactly.throw(`Cannot do intra-line split on multi-line chunks`);
+
+                    expect(chunks.length).to.be(3);
+                });
+            }); // splitChunkIntraLine
+        }); // split and replace
     }); // Sources
 });
