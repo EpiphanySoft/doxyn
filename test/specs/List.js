@@ -8,28 +8,36 @@ const expect = Assert.expect;
 const List = require('../../lib/List');
 
 describe('List', function () {
+    let a, b, c, list;
+
+    beforeEach(function () {
+        list = new List();
+
+        a = {};
+        b = {};
+        c = {};
+    });
+
     describe('building', function () {
         it('should be able to add one item', function () {
-            let list = new List();
-            let item = {};
-
-            list.append(item);
+            list.append(a);
 
             expect(list).to.have.length(1);
 
-            expect(list.first).to.be(item);
-            expect(list.last).to.be(item);
+            expect(list.contains(a)).to.be(true);
+
+            expect(list.first).to.be(a);
+            expect(list.last).to.be(a);
         });
 
         it('should be able to append two items', function () {
-            let list = new List();
-            let a = {};
-            let b = {};
-
             list.append(a);
             list.append(b);
 
             expect(list).to.have.length(2);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(true);
 
             expect(list.first).to.be(a);
             expect(list.last).to.be(b);
@@ -42,14 +50,13 @@ describe('List', function () {
         });
 
         it('should be able to append/insert two items', function () {
-            let list = new List();
-            let a = {};
-            let b = {};
-
             list.append(a);
             list.insert(b, a);
 
             expect(list).to.have.length(2);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(true);
 
             expect(list.first).to.be(b);
             expect(list.last).to.be(a);
@@ -61,17 +68,40 @@ describe('List', function () {
             expect(b.prev).to.be(null);
         });
 
-        it('should be able to add 3 items', function () {
-            let list = new List();
-            let a = {};
-            let b = {};
-            let c = {};
-
+        it('should be able to append/insert/append 3 items', function () {
             list.append(b);
             list.insert(a, b);
             list.append(c);
 
             expect(list).to.have.length(3);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(true);
+            expect(list.contains(c)).to.be(true);
+
+            expect(list.first).to.be(a);
+            expect(list.last).to.be(c);
+
+            expect(a.next).to.be(b);
+            expect(a.prev).to.be(null);
+
+            expect(b.next).to.be(c);
+            expect(b.prev).to.be(a);
+
+            expect(c.next).to.be(null);
+            expect(c.prev).to.be(b);
+        });
+
+        it('should be able to append/append/insert 3 items', function () {
+            list.append(a);
+            list.append(c);
+            list.insert(b, c);
+
+            expect(list).to.have.length(3);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(true);
+            expect(list.contains(c)).to.be(true);
 
             expect(list.first).to.be(a);
             expect(list.last).to.be(c);
@@ -88,19 +118,27 @@ describe('List', function () {
     });
 
     describe('remove', function () {
-        let a, b, c, list;
-
         beforeEach(function () {
-            list = new List();
-
-            list.append(a = {});
-            list.append(b = {});
-            list.append(c = {});
+            list.append(a);
+            list.append(b);
+            list.append(c);
 
             expect(list).to.have.length(3);
 
             expect(list.first).to.be(a);
             expect(list.last).to.be(c);
+
+            expect(list).to.contain(a, 0);
+            expect(list).to.contain(b, 1);
+            expect(list).to.contain(c, 2);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(true);
+            expect(list.contains(c)).to.be(true);
+
+            expect(list.indexOf(a)).to.be(0);
+            expect(list.indexOf(b)).to.be(1);
+            expect(list.indexOf(c)).to.be(2);
 
             expect(a.next).to.be(b);
             expect(a.prev).to.be(null);
@@ -120,6 +158,18 @@ describe('List', function () {
             expect(list.first).to.be(b);
             expect(list.last).to.be(c);
 
+            expect(list).to.not.contain(a);
+            expect(list).to.contain(b);
+            expect(list).to.contain(c);
+
+            expect(list.contains(a)).to.be(false);
+            expect(list.contains(b)).to.be(true);
+            expect(list.contains(c)).to.be(true);
+
+            expect(list.indexOf(a)).to.be(-1);
+            expect(list.indexOf(b)).to.be(0);
+            expect(list.indexOf(c)).to.be(1);
+
             expect(a.next).to.be(null);
             expect(a.prev).to.be(null);
 
@@ -137,6 +187,18 @@ describe('List', function () {
 
             expect(list.first).to.be(a);
             expect(list.last).to.be(c);
+
+            expect(list).to.contain(a);
+            expect(list).to.not.contain(b);
+            expect(list).to.contain(c);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(false);
+            expect(list.contains(c)).to.be(true);
+
+            expect(list.indexOf(a)).to.be(0);
+            expect(list.indexOf(b)).to.be(-1);
+            expect(list.indexOf(c)).to.be(1);
 
             expect(a.next).to.be(c);
             expect(a.prev).to.be(null);
@@ -156,6 +218,18 @@ describe('List', function () {
             expect(list.first).to.be(a);
             expect(list.last).to.be(b);
 
+            expect(list).to.contain(a);
+            expect(list).to.contain(b);
+            expect(list).to.not.contain(c);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(true);
+            expect(list.contains(c)).to.be(false);
+
+            expect(list.indexOf(a)).to.be(0);
+            expect(list.indexOf(b)).to.be(1);
+            expect(list.indexOf(c)).to.be(-1);
+
             expect(a.next).to.be(b);
             expect(a.prev).to.be(null);
 
@@ -174,6 +248,18 @@ describe('List', function () {
             expect(list.first).to.be(a);
             expect(list.last).to.be(c);
 
+            expect(list).to.contain(a);
+            expect(list).to.not.contain(b);
+            expect(list).to.contain(c);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(false);
+            expect(list.contains(c)).to.be(true);
+
+            expect(list.indexOf(a)).to.be(0);
+            expect(list.indexOf(b)).to.be(-1);
+            expect(list.indexOf(c)).to.be(1);
+
             expect(a.next).to.be(c);
             expect(a.prev).to.be(null);
 
@@ -190,6 +276,18 @@ describe('List', function () {
             expect(list.first).to.be(a);
             expect(list.last).to.be(a);
 
+            expect(list).to.contain(a);
+            expect(list).to.not.contain(b);
+            expect(list).to.not.contain(c);
+
+            expect(list.contains(a)).to.be(true);
+            expect(list.contains(b)).to.be(false);
+            expect(list.contains(c)).to.be(false);
+
+            expect(list.indexOf(a)).to.be(0);
+            expect(list.indexOf(b)).to.be(-1);
+            expect(list.indexOf(c)).to.be(-1);
+
             expect(a.next).to.be(null);
             expect(a.prev).to.be(null);
 
@@ -205,6 +303,18 @@ describe('List', function () {
 
             expect(list.first).to.be(null);
             expect(list.last).to.be(null);
+
+            expect(list).to.not.contain(a);
+            expect(list).to.not.contain(b);
+            expect(list).to.not.contain(c);
+
+            expect(list.contains(a)).to.be(false);
+            expect(list.contains(b)).to.be(false);
+            expect(list.contains(c)).to.be(false);
+
+            expect(list.indexOf(a)).to.be(-1);
+            expect(list.indexOf(b)).to.be(-1);
+            expect(list.indexOf(c)).to.be(-1);
 
             expect(a.next).to.be(null);
             expect(a.prev).to.be(null);
