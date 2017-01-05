@@ -9,11 +9,9 @@ const Message = require('../../../lib/message/Message');
 const Event   = require('../../../lib/message/Event');
 
 describe('message/Event', function () {
-    const Msg = Message.create();
-
     describe('no src, no extra message', function () {
         beforeEach(function () {
-            this.event = new Event('D', null, Msg.TagInvalidInContext);
+            this.event = new Event('D', null, Message.TagInvalidInContext);
         });
 
         it('toString should be correct', function () {
@@ -25,7 +23,7 @@ describe('message/Event', function () {
 
     describe('no src, extra message', function () {
         beforeEach(function () {
-            this.event = new Event('D', null, Msg.TagInvalidInContext, 'Hi $1', [42]);
+            this.event = new Event('D', null, Message.TagInvalidInContext, 'Hi $1', [42]);
         });
 
         it('toString should be correct', function () {
