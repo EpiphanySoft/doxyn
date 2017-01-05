@@ -21,21 +21,19 @@ describe('Enum', function () {
     });
 
     class C extends B {}
-    C.define({
-        values: {
-            C1: {
-                foo: 42,
-                defaultLevel: 'W',
-                text: 'E1001: This is C1'
-            },
-            C2: {
-                bar: -42,
-                text: 'E: This is C2'
-            },
-            C3: {
-                zip: 427,
-                text: 'This is C3'
-            }
+    C.defineValues({
+        C1: {
+            foo: 42,
+            defaultLevel: 'W',
+            text: 'E1001: This is C1'
+        },
+        C2: {
+            bar: -42,
+            text: 'E: This is C2'
+        },
+        C3: {
+            zip: 427,
+            text: 'This is C3'
         }
     });
 
