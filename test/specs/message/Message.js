@@ -1,6 +1,6 @@
 'use strict';
 
-/* global describe, it, afterEach, beforeEach */
+/* global require, describe, it, afterEach, beforeEach */
 
 const Assert = require('assertly');
 const expect = Assert.expect;
