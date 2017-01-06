@@ -100,4 +100,58 @@ describe('model/Entity', function () {
         expect(Assert.print(e.data)).to.be(`{}`);
         expect(JSON.stringify(e.data)).to.be(`{}`);
     });
+
+    it('should clone and include data', function () {
+        class E extends Entity {}
+
+        E.define({
+            attributes: {
+                foo: 42
+            }
+        });
+
+        let e = new E({
+            foo: 427
+        });
+
+        e = e.clone();
+
+        expect(E.Data).to.not.be(Entity.Data);
+        expect(Object.getPrototypeOf(E.Data)).to.be(Entity.Data);
+
+        expect(e.data).to.have.own.only.property('foo', 427);
+
+        expect(e).to.have.attribute('foo', 427);
+        expect(e).to.have.own.attribute('foo', 427);
+
+        // Because the default value
+        expect(Assert.print(e.data)).to.be(`{ foo: 427 }`);
+        expect(JSON.stringify(e.data)).to.be(`{"foo":427}`);
+    });
+
+    it('should clone with no data', function () {
+        class E extends Entity {}
+
+        E.define({
+            attributes: {
+                foo: 42
+            }
+        });
+
+        let e = new E();
+        e = e.clone();
+
+        expect(E.Data).to.not.be(Entity.Data);
+        expect(Object.getPrototypeOf(E.Data)).to.be(Entity.Data);
+
+        expect(e.data).to.have.only.property('foo', 42);
+        expect(e.data).to.have.only.own.keys(); // no keys of its own
+
+        expect(e).to.have.attribute('foo', 42);
+        expect(e).to.not.have.own.attribute('foo');
+
+        // Because the default value
+        expect(Assert.print(e.data)).to.be(`{}`);
+        expect(JSON.stringify(e.data)).to.be(`{}`);
+    });
 });
