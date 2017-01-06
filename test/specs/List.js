@@ -115,6 +115,22 @@ describe('List', function () {
             expect(c.next).to.be(null);
             expect(c.prev).to.be(b);
         });
+
+        it('should be able to use for-of loop', function () {
+            list.append(a);
+            list.append(c);
+            list.insert(b, c);
+
+            expect(list).to.have.length(3);
+
+            let o = [];
+
+            for (let i of list) {
+                o.push(i);
+            }
+
+            expect(o).to.be.same([ a, b, c ]);;
+        });
     });
 
     describe('remove', function () {
