@@ -49,6 +49,21 @@ describe.only('model/Node', function () {
 
             expect(c.previousSibling).to.be(null);
             expect(d.previousSibling).to.be(c);
+
+            let o = [];
+
+            for (let cc of p) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ c, d ]);
+
+            // Make sure we can iterate over empty list:
+            o = [];
+            for (let cc of p.getChildrenByName('x')) {
+                o.push(cc);
+            }
+            expect(o).to.be.same([]);
         });
 
         it('should be able to insert a new child', function () {
@@ -89,6 +104,14 @@ describe.only('model/Node', function () {
 
             expect(c.previousSibling).to.be(d);
             expect(d.previousSibling).to.be(null);
+
+            let o = [];
+
+            for (let cc of p) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ d, c ]);
         });
     }); // basics
 
@@ -116,6 +139,22 @@ describe.only('model/Node', function () {
             expect(f).to.be(d);
             expect(f.nextSiblingSameName).to.be(null);
             expect(f.previousSiblingSameName).to.be(null);
+
+            let o = [];
+
+            for (let cc of p.getChildrenByName('c')) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ c ]);
+
+            o = [];
+
+            for (let dd of p.getChildrenByName('d')) {
+                o.push(dd);
+            }
+
+            expect(o).to.be.same([ d ]);
         });
 
         it('should build name index with duplicates', function () {
@@ -197,9 +236,21 @@ describe.only('model/Node', function () {
             f = p.getLastChildByName('d');
             expect(f).to.be(d3);
 
+            let o = [];
+
             for (let cc of p.getChildrenByName('c')) {
-                //
+                o.push(cc);
             }
+
+            expect(o).to.be.same([ c, c2, c3 ]);
+
+            o = [];
+
+            for (let dd of p.getChildrenByName('d')) {
+                o.push(dd);
+            }
+
+            expect(o).to.be.same([ d, d2, d3 ]);
         });
 
         it('should update name index on change', function () {
@@ -280,6 +331,22 @@ describe.only('model/Node', function () {
 
             f = p.getLastChildByName('d');
             expect(f).to.be(d3);
+
+            let o = [];
+
+            for (let cc of p.getChildrenByName('c')) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ c2, c3 ]);
+
+            o = [];
+
+            for (let dd of p.getChildrenByName('d')) {
+                o.push(dd);
+            }
+
+            expect(o).to.be.same([ c, d, d2, d3 ]);
         });
 
         it('should update name index on removal', function () {
@@ -360,6 +427,267 @@ describe.only('model/Node', function () {
 
             f = p.getLastChildByName('d');
             expect(f).to.be(d3);
+
+            let o = [];
+
+            for (let cc of p.getChildrenByName('c')) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ c2, c3 ]);
+
+            o = [];
+
+            for (let dd of p.getChildrenByName('d')) {
+                o.push(dd);
+            }
+
+            expect(o).to.be.same([ d, d2, d3 ]);
         });
-    });
+    }); // name index
+
+    describe('tagName index', function () {
+        class C extends Node {}
+        class D extends Node {}
+        
+        C.define({
+            tagName: 'c'
+        });
+        D.define({
+            tagName: 'd'
+        });
+        
+        it('should build tagName index', function () {
+            let p = new Node();
+            let c = new C();
+            let d = new D();
+
+            p.appendChild(c);
+
+            let f = p.getFirstChildByTagName('c');
+            expect(f).to.be(c);
+            expect(f.nextSiblingSameTagName).to.be(null);
+            expect(f.previousSiblingSameTagName).to.be(null);
+
+            p.appendChild(d);
+
+            f = p.getFirstChildByTagName('c');
+            expect(f).to.be(c);
+            expect(f.nextSiblingSameTagName).to.be(null);
+            expect(f.previousSiblingSameTagName).to.be(null);
+
+            f = p.getFirstChildByTagName('d');
+            expect(f).to.be(d);
+            expect(f.nextSiblingSameTagName).to.be(null);
+            expect(f.previousSiblingSameTagName).to.be(null);
+
+            let o = [];
+
+            for (let cc of p.getChildrenByTagName('c')) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ c ]);
+
+            o = [];
+
+            for (let dd of p.getChildrenByTagName('d')) {
+                o.push(dd);
+            }
+
+            expect(o).to.be.same([ d ]);
+        });
+
+        it('should build tagName index with duplicates', function () {
+            let p = new Node();
+            let c = new C();
+            let d = new D();
+            let c2 = new C();
+            let d2 = new D();
+            let c3 = new C();
+            let d3 = new D();
+            let f;
+
+            p.appendChild(c);
+            p.appendChild(d);
+
+            f = p.getFirstChildByTagName('c');
+            expect(f).to.be(c);
+            expect(f.nextSiblingSameTagName).to.be(null);
+            expect(f.previousSiblingSameTagName).to.be(null);
+
+            f = p.getFirstChildByTagName('d');
+            expect(f).to.be(d);
+            expect(f.nextSiblingSameTagName).to.be(null);
+            expect(f.previousSiblingSameTagName).to.be(null);
+
+            p.appendChild(c2);
+            p.appendChild(d2);
+
+            f = p.getFirstChildByTagName('c');
+            expect(f).to.be(c);
+            expect(f.nextSiblingSameTagName).to.be(c2);
+            expect(f.previousSiblingSameTagName).to.be(null);
+
+            f = p.getFirstChildByTagName('d');
+            expect(f).to.be(d);
+            expect(f.nextSiblingSameTagName).to.be(d2);
+            expect(f.previousSiblingSameTagName).to.be(null);
+
+            f = p.getLastChildByTagName('c');
+            expect(f).to.be(c2);
+            expect(f.nextSiblingSameTagName).to.be(null);
+            expect(f.previousSiblingSameTagName).to.be(c);
+
+            f = p.getLastChildByTagName('d');
+            expect(f).to.be(d2);
+            expect(f.nextSiblingSameTagName).to.be(null);
+            expect(f.previousSiblingSameTagName).to.be(d);
+
+            p.appendChild(c3);
+            p.appendChild(d3);
+
+            expect(c.nextSiblingSameTagName).to.be(c2);
+            expect(c.previousSiblingSameTagName).to.be(null);
+
+            expect(d.nextSiblingSameTagName).to.be(d2);
+            expect(d.previousSiblingSameTagName).to.be(null);
+
+            expect(c2.nextSiblingSameTagName).to.be(c3);
+            expect(c2.previousSiblingSameTagName).to.be(c);
+
+            expect(d2.nextSiblingSameTagName).to.be(d3);
+            expect(d2.previousSiblingSameTagName).to.be(d);
+
+            expect(c3.nextSiblingSameTagName).to.be(null);
+            expect(c3.previousSiblingSameTagName).to.be(c2);
+
+            expect(d3.nextSiblingSameTagName).to.be(null);
+            expect(d3.previousSiblingSameTagName).to.be(d2);
+
+            f = p.getFirstChildByTagName('c');
+            expect(f).to.be(c);
+
+            f = p.getFirstChildByTagName('d');
+            expect(f).to.be(d);
+
+            f = p.getLastChildByTagName('c');
+            expect(f).to.be(c3);
+
+            f = p.getLastChildByTagName('d');
+            expect(f).to.be(d3);
+
+            let o = [];
+
+            for (let cc of p.getChildrenByTagName('c')) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ c, c2, c3 ]);
+
+            o = [];
+
+            for (let dd of p.getChildrenByTagName('d')) {
+                o.push(dd);
+            }
+
+            expect(o).to.be.same([ d, d2, d3 ]);
+        });
+
+        it('should update tagName index on removal', function () {
+            let p = new Node();
+            let c = new C();
+            let d = new D();
+            let c2 = new C();
+            let d2 = new D();
+            let c3 = new C();
+            let d3 = new D();
+            let f;
+
+            p.appendChild(c);
+            p.appendChild(d);
+            p.appendChild(c2);
+            p.appendChild(d2);
+            p.appendChild(c3);
+            p.appendChild(d3);
+
+            expect(c.nextSiblingSameTagName).to.be(c2);
+            expect(c.previousSiblingSameTagName).to.be(null);
+
+            expect(d.nextSiblingSameTagName).to.be(d2);
+            expect(d.previousSiblingSameTagName).to.be(null);
+
+            expect(c2.nextSiblingSameTagName).to.be(c3);
+            expect(c2.previousSiblingSameTagName).to.be(c);
+
+            expect(d2.nextSiblingSameTagName).to.be(d3);
+            expect(d2.previousSiblingSameTagName).to.be(d);
+
+            expect(c3.nextSiblingSameTagName).to.be(null);
+            expect(c3.previousSiblingSameTagName).to.be(c2);
+
+            expect(d3.nextSiblingSameTagName).to.be(null);
+            expect(d3.previousSiblingSameTagName).to.be(d2);
+
+            f = p.getFirstChildByTagName('c');
+            expect(f).to.be(c);
+
+            f = p.getFirstChildByTagName('d');
+            expect(f).to.be(d);
+
+            f = p.getLastChildByTagName('c');
+            expect(f).to.be(c3);
+
+            f = p.getLastChildByTagName('d');
+            expect(f).to.be(d3);
+
+            c.remove();
+
+            expect(c.nextSiblingSameTagName).to.be(null);
+            expect(c.previousSiblingSameTagName).to.be(null);
+
+            expect(d.nextSiblingSameTagName).to.be(d2);
+            expect(d.previousSiblingSameTagName).to.be(null);
+
+            expect(c2.nextSiblingSameTagName).to.be(c3);
+            expect(c2.previousSiblingSameTagName).to.be(null);
+
+            expect(d2.nextSiblingSameTagName).to.be(d3);
+            expect(d2.previousSiblingSameTagName).to.be(d);
+
+            expect(c3.nextSiblingSameTagName).to.be(null);
+            expect(c3.previousSiblingSameTagName).to.be(c2);
+
+            expect(d3.nextSiblingSameTagName).to.be(null);
+            expect(d3.previousSiblingSameTagName).to.be(d2);
+
+            f = p.getFirstChildByTagName('c');
+            expect(f).to.be(c2);
+
+            f = p.getFirstChildByTagName('d');
+            expect(f).to.be(d);
+
+            f = p.getLastChildByTagName('c');
+            expect(f).to.be(c3);
+
+            f = p.getLastChildByTagName('d');
+            expect(f).to.be(d3);
+
+            let o = [];
+
+            for (let cc of p.getChildrenByTagName('c')) {
+                o.push(cc);
+            }
+
+            expect(o).to.be.same([ c2, c3 ]);
+
+            o = [];
+
+            for (let dd of p.getChildrenByTagName('d')) {
+                o.push(dd);
+            }
+
+            expect(o).to.be.same([ d, d2, d3 ]);
+        });
+    }); // tagName index
 });
