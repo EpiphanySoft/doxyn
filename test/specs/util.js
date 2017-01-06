@@ -7,7 +7,7 @@ const expect = Assert.expect;
 
 const Util = require('../../lib/util');
 
-describe('util', function () {
+describe.only('util', function () {
     describe('Empty', function () {
         it('should have only hasOwnProperty', function () {
             let e = new Util.Empty();
@@ -22,6 +22,16 @@ describe('util', function () {
             expect(e.unwatch).to.be.an('undefined');
             expect(e.valueOf).to.be.an('undefined');
             expect(e.watch).to.be.an('undefined');
+        });
+
+        it('should copy data passed to constructor', function () {
+            let o = { a: 42 };
+            let e = new Util.Empty(o);
+
+            expect(e).to.not.be(o);
+            expect(o).to.equal({ a: 42 });  // shouldn't mutate o
+
+            expect(e).to.only.have.own.property('a', 42);
         });
     });
 });
