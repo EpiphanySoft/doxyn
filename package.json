@@ -25,6 +25,7 @@
   "homepage": "https://github.com/dongryphon/doxyn#readme",
   "dependencies": {
     "event-emitter": "^0.3.4",
+    "phylo": "^1.0.0-beta.4",
     "switchit": "^1.0.7"
   },
   "devDependencies": {
