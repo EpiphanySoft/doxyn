@@ -6,7 +6,6 @@ const Assert = require('assertly');
 const expect = Assert.expect;
 
 const Location = require('../../../lib/model/Location');
-const Sources = require('../../../lib/model/Sources');
 const Entity = require('../../../lib/model/Entity');
 
 require('../../util'); // for expect(e).to.have.attribute('foo', 42)

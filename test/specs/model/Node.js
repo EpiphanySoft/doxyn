@@ -6,10 +6,9 @@ const Assert = require('assertly');
 const expect = Assert.expect;
 
 const Location = require('../../../lib/model/Location');
-const Sources = require('../../../lib/model/Sources');
 const Node = require('../../../lib/model/Node');
 
-describe.only('model/Node', function () {
+describe('model/Node', function () {
     describe('basics', function () {
         it('should be able to append a new child', function () {
             let p = new Node();

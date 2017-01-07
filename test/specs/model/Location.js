@@ -19,7 +19,7 @@ describe('model/Location', function () {
         it('should accept full Location', function () {
             let f = Location.from('foo.js:427:13');
 
-            expect(f.file).to.be('foo.js');
+            expect(f.file).to.equal('foo.js');
             expect(f.line).to.be(427);
             expect(f.column).to.be(13);
         });
@@ -27,7 +27,7 @@ describe('model/Location', function () {
         it('should accept Location without a column', function () {
             let f = Location.from('foo.js:427');
 
-            expect(f.file).to.be('foo.js');
+            expect(f.file).to.equal('foo.js');
             expect(f.line).to.be(427);
             expect(f.column).to.be(-1);
         });
@@ -35,7 +35,7 @@ describe('model/Location', function () {
         it('should accept Location without line or column', function () {
             let f = Location.from('foo.js');
 
-            expect(f.file).to.be('foo.js');
+            expect(f.file).to.equal('foo.js');
             expect(f.line).to.be(-1);
             expect(f.column).to.be(-1);
         });
@@ -47,7 +47,7 @@ describe('model/Location', function () {
         });
 
         it('should have correct file path', function () {
-            expect(this.loc.file).to.be('foo.js');
+            expect(this.loc.file).to.equal('foo.js');
         });
 
         it('should have correct line number', function () {
@@ -69,7 +69,7 @@ describe('model/Location', function () {
 
             c.advance();
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(124);
             expect(c.column).to.be(42);
 
@@ -83,7 +83,7 @@ describe('model/Location', function () {
 
             c.advance(10);
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(133);
             expect(c.column).to.be(42);
 
@@ -97,7 +97,7 @@ describe('model/Location', function () {
 
             c.advanceColumn();
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(123);
             expect(c.column).to.be(43);
 
@@ -111,7 +111,7 @@ describe('model/Location', function () {
 
             c.advanceColumn(10);
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(123);
             expect(c.column).to.be(52);
 
@@ -124,7 +124,7 @@ describe('model/Location', function () {
             let c = this.loc.clone();
 
             expect(c === this.loc).to.be(false); // not the same instance
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(123);
             expect(c.column).to.be(42);
 
@@ -160,7 +160,7 @@ describe('model/Location', function () {
         });
 
         it('should have correct file path', function () {
-            expect(this.loc.file).to.be('foo.js');
+            expect(this.loc.file).to.equal('foo.js');
         });
 
         it('should have correct line number', function () {
@@ -182,7 +182,7 @@ describe('model/Location', function () {
 
             c.advance();
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(124);
             expect(c.column).to.be(-1);
 
@@ -196,7 +196,7 @@ describe('model/Location', function () {
 
             c.advance(10);
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(133);
             expect(c.column).to.be(-1);
 
@@ -210,7 +210,7 @@ describe('model/Location', function () {
 
             c.advanceColumn();
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(123);
             expect(c.column).to.be(-1);
 
@@ -224,7 +224,7 @@ describe('model/Location', function () {
 
             c.advanceColumn(10);
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(123);
             expect(c.column).to.be(-1);
 
@@ -237,7 +237,7 @@ describe('model/Location', function () {
             let c = this.loc.clone();
 
             expect(c === this.loc).to.be(false); // not the same instance
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(123);
             expect(c.column).to.be(-1);
 
@@ -273,7 +273,7 @@ describe('model/Location', function () {
         });
 
         it('should have correct file path', function () {
-            expect(this.loc.file).to.be('foo.js');
+            expect(this.loc.file).to.equal('foo.js');
         });
 
         it('should have correct line number', function () {
@@ -295,7 +295,7 @@ describe('model/Location', function () {
 
             c.advance();
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(-1);
             expect(c.column).to.be(-1);
 
@@ -309,7 +309,7 @@ describe('model/Location', function () {
 
             c.advance(10);
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(-1);
             expect(c.column).to.be(-1);
 
@@ -323,7 +323,7 @@ describe('model/Location', function () {
 
             c.advanceColumn();
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(-1);
             expect(c.column).to.be(-1);
 
@@ -337,7 +337,7 @@ describe('model/Location', function () {
 
             c.advanceColumn(10);
 
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(-1);
             expect(c.column).to.be(-1);
 
@@ -350,7 +350,7 @@ describe('model/Location', function () {
             let c = this.loc.clone();
 
             expect(c === this.loc).to.be(false); // not the same instance
-            expect(c.file).to.be('foo.js');
+            expect(c.file).to.equal('foo.js');
             expect(c.line).to.be(-1);
             expect(c.column).to.be(-1);
 

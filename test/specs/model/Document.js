@@ -12,7 +12,7 @@ const File = require('phylo');
 // const Node = require('../../../lib/model/Node');
 const Document = require('../../../lib/model/Document');
 
-describe.only('model/Document', function () {
+describe('model/Document', function () {
     let doc;
 
     beforeEach(function () {

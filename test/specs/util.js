@@ -7,7 +7,7 @@ const expect = Assert.expect;
 
 const Util = require('../../lib/util');
 
-describe.only('util', function () {
+describe('util', function () {
     describe('Empty', function () {
         it('should have only hasOwnProperty', function () {
             let e = new Util.Empty();

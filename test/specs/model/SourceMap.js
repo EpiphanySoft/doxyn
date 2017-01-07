@@ -6,10 +6,10 @@ const Assert = require('assertly');
 const expect = Assert.expect;
 
 const Location = require('../../../lib/model/Location');
-const Sources = require('../../../lib/model/Sources');
-const Chunk = Sources.Chunk;
+const SourceMap = require('../../../lib/model/SourceMap');
+const Chunk = SourceMap.Chunk;
 
-describe('model/Sources', function () {
+describe('model/SourceMap', function () {
     const FILES = [
         'Foo.js',
         'Bar.js',
@@ -109,7 +109,7 @@ describe('model/Sources', function () {
             it('should parse a 3-tuple', function () {
                 let c = Chunk.from('123,456,789');
 
-                expect(c.file).to.be(123);
+                expect(c.fileIndex).to.be(123);
                 expect(c.line).to.be(456);
                 expect(c.column).to.be(789);
                 expect(c.length).to.be(-1);
@@ -118,7 +118,7 @@ describe('model/Sources', function () {
             it('should parse a 4-tuple', function () {
                 let c = Chunk.from('123,456,789,2468');
 
-                expect(c.file).to.be(123);
+                expect(c.fileIndex).to.be(123);
                 expect(c.line).to.be(456);
                 expect(c.column).to.be(789);
                 expect(c.length).to.be(2468);
@@ -148,15 +148,15 @@ describe('model/Sources', function () {
         });
     }); // Chunk
 
-    describe('Sources', function () {
+    describe('SourceMap', function () {
         const A = 6;
         const B = 7;
         const C = 4;
 
         beforeEach(function () {
-            this.src2 = new Sources(FILES, 'Hello World!!', `0,2,4,${A}:1,3,5,${B}`);
-            this.src3 = new Sources(FILES, 'Hello World!! Yo!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
-            this.src4 = new Sources(FILES, 'He\nlo Wo\nld\n! Y\n!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
+            this.src2 = new SourceMap(FILES, 'Hello World!!', `0,2,4,${A}:1,3,5,${B}`);
+            this.src3 = new SourceMap(FILES, 'Hello World!! Yo!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
+            this.src4 = new SourceMap(FILES, 'He\nlo Wo\nld\n! Y\n!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
         });
 
         describe('first chunk', function () {
@@ -286,6 +286,14 @@ describe('model/Sources', function () {
         });
 
         describe('at', function () {
+            it('should return null beyond end', function () {
+                let c = this.src4.at(A+B+C);
+                expect(c).to.be(null);
+
+                c = this.src4.at(A+B+C+1);
+                expect(c).to.be(null);
+            });
+
             describe('first block', function () {
                 it('should handle offset 0', function () {
                     let c = this.src4.at(0);
@@ -329,6 +337,29 @@ describe('model/Sources', function () {
                     let s = c.toString();
 
                     expect(s).to.be('Bar.js:5:5');
+                });
+            });
+
+            describe('third block', function () {
+                it('should handle offset 0', function () {
+                    let c = this.src4.at(A+B);
+                    let s = c.toString();
+
+                    expect(s).to.be('Zip.js:42:427');
+                });
+
+                it('should handle line 2', function () {
+                    let c = this.src4.at(A + B + 1);
+                    let s = c.toString();
+
+                    expect(s).to.be('Zip.js:42:428');
+                });
+
+                it('should handle offset -1 from end', function () {
+                    let c = this.src4.at(A + B + C - 1);
+                    let s = c.toString();
+
+                    expect(s).to.be('Zip.js:43:427');
                 });
             });
         }); // at
@@ -534,7 +565,7 @@ describe('model/Sources', function () {
             const C = 29;
 
             beforeEach(function () {
-                this.src = new Sources(FILES,
+                this.src = new SourceMap(FILES,
                     //         1111111111222222222233333333
                     [//  4567890123456789012345678901234567
                         'Hello\n' +                             // [0] 11  (6)
@@ -1063,5 +1094,5 @@ describe('model/Sources', function () {
                 });
             }); // splitChunkIntraLine
         }); // split and replace
-    }); // Sources
+    }); // SourceMap
 });

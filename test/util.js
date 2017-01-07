@@ -25,5 +25,15 @@ Assert.register({
                 this.expectation = `${Assert.print(name)} === ${Assert.print(value)}`;
             }
         }
+    },
+
+    equal: {
+        evaluate: function evaluate (actual, expected) {
+            if (actual && actual.$isFile && typeof expected === 'string') {
+                actual = actual.path;
+            }
+
+            return evaluate._super.call(this, actual, expected);
+        }
     }
 });
