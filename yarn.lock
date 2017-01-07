@@ -435,9 +435,9 @@ path-is-absolute@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
 
-phylo@^1.0.0-beta.4:
-  version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/phylo/-/phylo-1.0.0-beta.4.tgz#0cad36d87863bb5b4e55c4b02dbf4790af0e06b2"
+phylo@^1.0.0-beta.6:
+  version "1.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/phylo/-/phylo-1.0.0-beta.6.tgz#1036f5059763d0792782ed516334f53be058d2d1"
   dependencies:
     fswin "^2.16.1102"
     json5 "^0.5.0"
