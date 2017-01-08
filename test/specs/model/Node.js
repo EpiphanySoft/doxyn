@@ -752,7 +752,7 @@ describe.only('model/Node', function () {
             expect(loc[0].toString()).to.be('Foo.js:123:42');
 
             let src = node.getAttributeSrc('alias');
-            expect(src).to.be('0,123,42');
+            expect(src).to.be('0:123:42');
         });
 
         it('should store multiple values with a location', function () {
@@ -770,7 +770,49 @@ describe.only('model/Node', function () {
             expect(loc[1].toString()).to.be('Foo.js:123:46');
 
             let src = node.getAttributeSrc('alias');
-            expect(src).to.be('0,123,42:0,123,46');
+            expect(src).to.be('0:123:42|0:123:46');
+        });
+
+        it('should store multiple values with an array of locations', function () {
+            node.setAttribute('alias', 'foo|bar', [
+                new Location('Foo.js', 123, 42),
+                new Location('Bar.js', 321, 13)
+            ]);
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc).to.have.length(2);
+            expect(loc[0].toString()).to.be('Foo.js:123:42');
+            expect(loc[1].toString()).to.be('Bar.js:321:13');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0:123:42|1:321:13');
+        });
+
+        it('should store multiple values with a src', function () {
+            doc.getFileIndex('A.js');
+            doc.getFileIndex('B.js');
+debugger
+            node.setAttribute('alias', 'foo|bar', '0:1:2|1:10:20');
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc).to.have.length(2);
+            expect(loc[0].toString()).to.be('A.js:1:2');
+            expect(loc[1].toString()).to.be('B.js:10:201');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0:123:42|0:123:46');
         });
     });
 });

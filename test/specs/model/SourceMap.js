@@ -33,7 +33,7 @@ describe('model/SourceMap', function () {
             });
 
             describe('2-tuple', function () {
-                const STR = '21,427';
+                const STR = '21:427';
 
                 it('should return field[0]', function () {
                     let n = Chunk.fieldOf(STR, 0);
@@ -52,7 +52,7 @@ describe('model/SourceMap', function () {
             });
 
             describe('3-tuple', function () {
-                const STR = '42,123,321';
+                const STR = '42:123:321';
 
                 it('should return field[0]', function () {
                     let n = Chunk.fieldOf(STR, 0);
@@ -76,7 +76,7 @@ describe('model/SourceMap', function () {
             });
 
             describe('4-tuple', function () {
-                const STR = '4,5,6,7';
+                const STR = '4:5:6:7';
 
                 it('should return field[0]', function () {
                     let n = Chunk.fieldOf(STR, 0);
@@ -107,7 +107,7 @@ describe('model/SourceMap', function () {
 
         describe('from', function () {
             it('should parse a 3-tuple', function () {
-                let c = Chunk.from('123,456,789');
+                let c = Chunk.from('123:456:789');
 
                 expect(c.fileIndex).to.be(123);
                 expect(c.line).to.be(456);
@@ -116,7 +116,7 @@ describe('model/SourceMap', function () {
             });
 
             it('should parse a 4-tuple', function () {
-                let c = Chunk.from('123,456,789,2468');
+                let c = Chunk.from('123:456:789:2468');
 
                 expect(c.fileIndex).to.be(123);
                 expect(c.line).to.be(456);
@@ -127,7 +127,7 @@ describe('model/SourceMap', function () {
 
         describe('from / init', function () {
             it('should support a 3-tuple', function () {
-                let c = Chunk.from('1,456,789').init({ files: FILES }, 0);
+                let c = Chunk.from('1:456:789').init({ files: FILES }, 0);
 
                 expect(c.file).to.be('Bar.js');
                 expect(c.line).to.be(456);
@@ -136,7 +136,7 @@ describe('model/SourceMap', function () {
             });
 
             it('should parse a 4-tuple', function () {
-                let c = Chunk.from('0,456,789,2468').init({ files: FILES }, 100);
+                let c = Chunk.from('0:456:789:2468').init({ files: FILES }, 100);
 
                 expect(c.file).to.be('Foo.js');
                 expect(c.line).to.be(456);
@@ -154,9 +154,9 @@ describe('model/SourceMap', function () {
         const C = 4;
 
         beforeEach(function () {
-            this.src2 = new SourceMap(FILES, 'Hello World!!', `0,2,4,${A}:1,3,5,${B}`);
-            this.src3 = new SourceMap(FILES, 'Hello World!! Yo!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
-            this.src4 = new SourceMap(FILES, 'He\nlo Wo\nld\n! Y\n!', `0,2,4,${A}:1,3,5,${B}:2,42,427,${C}`);
+            this.src2 = new SourceMap(FILES, 'Hello World!!', `0:2:4:${A}|1:3:5:${B}`);
+            this.src3 = new SourceMap(FILES, 'Hello World!! Yo!', `0:2:4:${A}|1:3:5:${B}|2:42:427:${C}`);
+            this.src4 = new SourceMap(FILES, 'He\nlo Wo\nld\n! Y\n!', `0:2:4:${A}|1:3:5:${B}|2:42:427:${C}`);
         });
 
         describe('first chunk', function () {
@@ -250,7 +250,7 @@ describe('model/SourceMap', function () {
                 let next = src.splitChunkByLine(c, 1);
                 let s = src.toString();
 
-                expect(s).to.be(`0,2,4,${A/2}:0,3,4,${A/2}:1,3,5,${B}:2,42,427,${C}`);
+                expect(s).to.be(`0:2:4:${A/2}|0:3:4:${A/2}|1:3:5:${B}|2:42:427:${C}`);
             });
         });
 
@@ -581,7 +581,7 @@ describe('model/SourceMap', function () {
                     //   4567890123456789012345678901234
                         'This block has only one line.'         // [5] 200 (29)
                     ].join(''),
-                    `0,11,4,${A}:1,100,18,${B}:2,200,14,${C}`);
+                    `0:11:4:${A}|1:100:18:${B}|2:200:14:${C}`);
             });
 
             describe('replace', function () {
@@ -603,10 +603,10 @@ describe('model/SourceMap', function () {
                     expect(lines[5]).to.be('While this block has only one line.');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:` +
-                        `1,100,18,${B}:` +
-                        `2,200,14,${'While this'.length}:` +
-                        `2,200,${14 + 4},${C - 4}`);
+                    expect(s).to.be(`0:11:4:${A}|` +
+                        `1:100:18:${B}|` +
+                        `2:200:14:${'While this'.length}|` +
+                        `2:200:${14 + 4}:${C - 4}`);
                 });
 
                 it('should split single-line chunks in the middle', function () {
@@ -627,10 +627,10 @@ describe('model/SourceMap', function () {
                     expect(lines[5]).to.be('This block has only a single line.');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:` +
-                        `1,100,18,${B}:` +
-                        `2,200,14,${20 + 'a single'.length}:` +
-                        `2,200,${14 + 20 + 3},${C - 20 - 3}`);
+                    expect(s).to.be(`0:11:4:${A}|` +
+                        `1:100:18:${B}|` +
+                        `2:200:14:${20 + 'a single'.length}|` +
+                        `2:200:${14 + 20 + 3},${C - 20 - 3}`);
                 });
 
                 it('should split single-line chunks only if necessary', function () {
@@ -651,9 +651,9 @@ describe('model/SourceMap', function () {
                     expect(lines[5]).to.be('This block has only a single line.');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:` +
-                        `1,100,18,${B}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A}|` +
+                        `1:100:18:${B}|` +
+                        `2:200:14:${C}`);
                 });
 
                 it('should split chunks above as necessary', function () {
@@ -675,11 +675,11 @@ describe('model/SourceMap', function () {
                     expect(lines[4]).to.be('with 2+ lines.');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:` +
-                        `1,100,18,${B0}:` +
-                        `1,101,18,${5 + '2+'.length}:` +
-                        `1,101,${18 + 5 + 8},${B1 - 5 - 8}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A}|` +
+                        `1:100:18:${B0}|` +
+                        `1:101:18:${5 + '2+'.length}|` +
+                        `1:101:${18 + 5 + 8}:${B1 - 5 - 8}|` +
+                        `2:200:14:${C}`);
                 });
 
                 it('should split chunks above but lines only if necessary', function () {
@@ -701,10 +701,10 @@ describe('model/SourceMap', function () {
                     expect(lines[4]).to.be('with multiple lines of text.');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:` +
-                        `1,100,18,${B0}:` +
-                        `1,101,18,${B1 - 2 + ' of text.\n'.length}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A}|` +
+                        `1:100:18:${B0}|` +
+                        `1:101:18:${B1 - 2 + ' of text.\n'.length}|` +
+                        `2:200:14:${C}`);
                 });
 
                 it('should split chunks below as necessary', function () {
@@ -726,11 +726,11 @@ describe('model/SourceMap', function () {
                     expect(lines[3]).to.be('And this is another block');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:` +
-                        `1,100,18,${'And this'.length}:` +
-                        `1,100,${18 + 4},${B0 - 4}:` +
-                        `1,101,18,${B1}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A}|` +
+                        `1:100:18:${'And this'.length}|` +
+                        `1:100:${18 + 4}:${B0 - 4}|` +
+                        `1:101:18:${B1}|` +
+                        `2:200:14:${C}`);
                 });
 
                 it('should not split chunks when unnecessary', function () {
@@ -752,9 +752,9 @@ describe('model/SourceMap', function () {
                     expect(lines[3]).to.be('Here is another block');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:` +
-                        `1,100,18,${B}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A}|` +
+                        `1:100:18:${B}|` +
+                        `2:200:14:${C}`);
                 });
 
                 it('should split chunks above and below as necessary', function () {
@@ -777,12 +777,12 @@ describe('model/SourceMap', function () {
                     expect(lines[1]).to.be('World! Here goes a test');
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A0}:` +
-                        `0,12,4,${7 + 'Here goes'.length}:` +
-                        `0,12,${4 + 7 + 7},${A1 - 7 - 7}:` +
-                        `0,13,4,${A2}:` +
-                        `1,100,18,${B}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A0}|` +
+                        `0:12:4:${7 + 'Here goes'.length}|` +
+                        `0:12:${4 + 7 + 7}:${A1 - 7 - 7}|` +
+                        `0:13:4:${A2}|` +
+                        `1:100:18:${B}|` +
+                        `2:200:14:${C}`);
                 });
             });
 
@@ -904,7 +904,7 @@ describe('model/SourceMap', function () {
                     expect(chunks[1]).to.be(cn);
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A0}:0,12,4,${A-A0}:1,100,18,${B}:2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A0}|0:12:4:${A-A0}|1:100:18:${B}|2:200:14:${C}`);
                 });
 
                 it('should be able to split chunks[0] at line 2', function () {
@@ -922,7 +922,7 @@ describe('model/SourceMap', function () {
                     expect(chunks[1]).to.be(cn);
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A0+A1}:0,13,4,${A2}:1,100,18,${B}:2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A0+A1}|0:13:4:${A2}|1:100:18:${B}|2:200:14:${C}`);
                 });
 
                 it('should be able to split chunks[0] at 2 lines and 1 column', function () {
@@ -940,7 +940,7 @@ describe('model/SourceMap', function () {
                     expect(chunks).to.be.same([c, cn, c1, c2]);
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A0}:0,12,4,${A-A0}:1,100,18,${B}:2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A0}|0:12:4:${A-A0}|1:100:18:${B}|2:200:14:${C}`);
 
                     let cn2 = src.splitChunkByLine(cn, 1);
 
@@ -948,11 +948,11 @@ describe('model/SourceMap', function () {
                     expect(chunks).to.be.same([c, cn, cn2, c1, c2]);
 
                     s = src.toString();
-                    expect(s).to.be(`0,11,4,${A0}:` +
-                        `0,12,4,${A1}:` +
-                        `0,13,4,${A2}:` +
-                        `1,100,18,${B}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A0}|` +
+                        `0:12:4:${A1}|` +
+                        `0:13:4:${A2}|` +
+                        `1:100:18:${B}|` +
+                        `2:200:14:${C}`);
 
                     let cn3 = src.splitChunkIntraLine(cn, 10);
 
@@ -960,12 +960,12 @@ describe('model/SourceMap', function () {
                     expect(chunks).to.be.same([c, cn, cn3, cn2, c1, c2]);
 
                     s = src.toString();
-                    expect(s).to.be(`0,11,4,${A0}:` +
-                        `0,12,4,10:` +
-                        `0,12,14,${A1-10}:` +
-                        `0,13,4,${A2}:` +
-                        `1,100,18,${B}:` +
-                        `2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A0}|` +
+                        `0:12:4:10|` +
+                        `0:12:14:${A1-10}|` +
+                        `0:13:4:${A2}|` +
+                        `1:100:18:${B}|` +
+                        `2:200:14:${C}`);
                 });
 
                 it('should be able to split chunks[1] at line 1', function () {
@@ -985,7 +985,7 @@ describe('model/SourceMap', function () {
                     expect(chunks[2]).to.be(cn);
 
                     let s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:1,100,18,${B0}:1,101,18,${B1}:2,200,14,${C}`);
+                    expect(s).to.be(`0:11:4:${A}|1:100:18:${B0}|1:101:18:${B1}|2:200:14:${C}`);
                 });
 
                 it('should fail on chunk[0] if line number is out of range', function () {
@@ -1060,7 +1060,7 @@ describe('model/SourceMap', function () {
                     expect(s).to.be(`Zip.js,200,24,${C-10}`);
 
                     s = src.toString();
-                    expect(s).to.be(`0,11,4,${A}:1,100,18,${B}:2,200,14,10:2,200,24,${C-10}`);
+                    expect(s).to.be(`0:11:4:${A}|1:100:18:${B}|2:200:14:10|2:200:24:${C-10}`);
                 });
 
                 it('should fail on multi-line chunks[0]', function () {
