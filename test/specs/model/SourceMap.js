@@ -630,7 +630,7 @@ describe('model/SourceMap', function () {
                     expect(s).to.be(`0:11:4:${A}|` +
                         `1:100:18:${B}|` +
                         `2:200:14:${20 + 'a single'.length}|` +
-                        `2:200:${14 + 20 + 3},${C - 20 - 3}`);
+                        `2:200:${14 + 20 + 3}:${C - 20 - 3}`);
                 });
 
                 it('should split single-line chunks only if necessary', function () {
@@ -1054,10 +1054,10 @@ describe('model/SourceMap', function () {
                     expect(chunks[3]).to.be(cn);
 
                     let s = c.toString();
-                    expect(s).to.be(`Zip.js,200,14,10`);
+                    expect(s).to.be(`Zip.js:200:14:10`);
 
                     s = cn.toString();
-                    expect(s).to.be(`Zip.js,200,24,${C-10}`);
+                    expect(s).to.be(`Zip.js:200:24:${C-10}`);
 
                     s = src.toString();
                     expect(s).to.be(`0:11:4:${A}|1:100:18:${B}|2:200:14:10|2:200:24:${C-10}`);

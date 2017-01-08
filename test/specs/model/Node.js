@@ -9,7 +9,7 @@ const Location = require('../../../lib/model/Location');
 const Node = require('../../../lib/model/Node');
 const Document = require('../../../lib/model/Document');
 
-describe.only('model/Node', function () {
+describe('model/Node', function () {
     describe('basics', function () {
         it('should be able to append a new child', function () {
             let p = new Node();
@@ -700,6 +700,7 @@ describe.only('model/Node', function () {
 
         beforeEach(function () {
             doc = Document.create();
+            doc.baseDir = __dirname;
             node = new N();
             doc.appendChild(node);
         });
@@ -795,8 +796,8 @@ describe.only('model/Node', function () {
         });
 
         it('should store multiple values with a src', function () {
-            doc.getFileIndex('A.js');
-            doc.getFileIndex('B.js');
+            doc.getFileIndex(doc.baseDir.join('A.js'));
+            doc.getFileIndex(doc.baseDir.join('B.js'));
 debugger
             node.setAttribute('alias', 'foo|bar', '0:1:2|1:10:20');
 
@@ -809,10 +810,10 @@ debugger
 
             expect(loc).to.have.length(2);
             expect(loc[0].toString()).to.be('A.js:1:2');
-            expect(loc[1].toString()).to.be('B.js:10:201');
+            expect(loc[1].toString()).to.be('B.js:10:20');
 
             let src = node.getAttributeSrc('alias');
-            expect(src).to.be('0:123:42|0:123:46');
+            expect(src).to.be('0:1:2|1:10:20');
         });
     });
 });
