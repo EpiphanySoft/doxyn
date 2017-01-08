@@ -703,7 +703,13 @@ describe('model/Node', function () {
             doc.baseDir = __dirname;
             node = new N();
             doc.appendChild(node);
+
+            doc.getFileIndex(doc.baseDir.join('A.js'));
+            doc.getFileIndex(doc.baseDir.join('B.js'));
+            doc.getFileIndex(doc.baseDir.join('C.js'));
+            doc.getFileIndex(doc.baseDir.join('D.js'));
         });
+
         afterEach(function () {
             doc = node = null;
         });
@@ -753,7 +759,7 @@ describe('model/Node', function () {
             expect(loc[0].toString()).to.be('Foo.js:123:42');
 
             let src = node.getAttributeSrc('alias');
-            expect(src).to.be('0:123:42');
+            expect(src).to.be('4:123:42');
         });
 
         it('should store multiple values with a location', function () {
@@ -771,7 +777,7 @@ describe('model/Node', function () {
             expect(loc[1].toString()).to.be('Foo.js:123:46');
 
             let src = node.getAttributeSrc('alias');
-            expect(src).to.be('0:123:42|0:123:46');
+            expect(src).to.be('4:123:42|4:123:46');
         });
 
         it('should store multiple values with an array of locations', function () {
@@ -792,13 +798,10 @@ describe('model/Node', function () {
             expect(loc[1].toString()).to.be('Bar.js:321:13');
 
             let src = node.getAttributeSrc('alias');
-            expect(src).to.be('0:123:42|1:321:13');
+            expect(src).to.be('4:123:42|5:321:13');
         });
 
         it('should store multiple values with a src', function () {
-            doc.getFileIndex(doc.baseDir.join('A.js'));
-            doc.getFileIndex(doc.baseDir.join('B.js'));
-debugger
             node.setAttribute('alias', 'foo|bar', '0:1:2|1:10:20');
 
             let a = node.getAttribute('alias');
@@ -814,6 +817,110 @@ debugger
 
             let src = node.getAttributeSrc('alias');
             expect(src).to.be('0:1:2|1:10:20');
+        });
+
+        it('should append multiple values with a src', function () {
+            node.setAttribute('alias', 'foo|bar', '0:1:2|1:10:20');
+            node.appendAttribute('alias', 'woot|derp', '3:12:42|2:300:10');
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar', 'woot', 'derp' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc.length).to.be(4);
+            expect(loc[0].toString()).to.be('A.js:1:2');
+            expect(loc[1].toString()).to.be('B.js:10:20');
+            expect(loc[2].toString()).to.be('D.js:12:42');
+            expect(loc[3].toString()).to.be('C.js:300:10');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0:1:2|1:10:20|3:12:42|2:300:10');
+        });
+
+        it('should append multiple values with a Location', function () {
+            node.setAttribute('alias', 'foo|bar', [
+                new Location(doc.getFile(0), 1, 2),
+                new Location(doc.getAbsoluteFile(1), 11, 22)
+            ]);
+            node.appendAttribute('alias', 'woot|derp', [
+                new Location(doc.getAbsoluteFile(3), 4, 42),
+                new Location(doc.getFile(2), 44, 427)
+            ]);
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar', 'woot', 'derp' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc.length).to.be(4);
+            expect(loc[0].toString()).to.be('A.js:1:2');
+            expect(loc[1].toString()).to.be('B.js:11:22');
+            expect(loc[2].toString()).to.be('D.js:4:42');
+            expect(loc[3].toString()).to.be('C.js:44:427');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0:1:2|1:11:22|3:4:42|2:44:427');
+        });
+
+        it('should append multiple values with a Location then a src', function () {
+            node.setAttribute('alias', 'foo|bar', [
+                new Location(doc.getFile(0), 1, 2),
+                new Location(doc.getAbsoluteFile(1), 11, 22)
+            ]);
+            node.appendAttribute('alias', 'woot|derp', '3:12:42|2:300:10');
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar', 'woot', 'derp' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc.length).to.be(4);
+            expect(loc[0].toString()).to.be('A.js:1:2');
+            expect(loc[1].toString()).to.be('B.js:11:22');
+            expect(loc[2].toString()).to.be('D.js:12:42');
+            expect(loc[3].toString()).to.be('C.js:300:10');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0:1:2|1:11:22|3:12:42|2:300:10');
+
+            let out = node.serialize();
+            expect(out).to.equal({
+                alias: 'foo|bar|woot|derp',
+                src: {
+                    alias: '0:1:2|1:11:22|3:12:42|2:300:10'
+                }
+            });
+        });
+
+        it('should append multiple values with a src then a Location', function () {
+            node.setAttribute('alias', 'foo|bar', '0:1:2|1:10:20');
+            node.appendAttribute('alias', 'woot|derp', [
+                new Location(doc.getAbsoluteFile(3), 4, 42),
+                new Location(doc.getFile(2), 44, 427)
+            ]);
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar', 'woot', 'derp' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc.length).to.be(4);
+            expect(loc[0].toString()).to.be('A.js:1:2');
+            expect(loc[1].toString()).to.be('B.js:10:20');
+            expect(loc[2].toString()).to.be('D.js:4:42');
+            expect(loc[3].toString()).to.be('C.js:44:427');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0:1:2|1:10:20|3:4:42|2:44:427');
         });
     });
 });
