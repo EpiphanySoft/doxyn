@@ -7,8 +7,9 @@ const expect = Assert.expect;
 
 const Location = require('../../../lib/model/Location');
 const Node = require('../../../lib/model/Node');
+const Document = require('../../../lib/model/Document');
 
-describe('model/Node', function () {
+describe.only('model/Node', function () {
     describe('basics', function () {
         it('should be able to append a new child', function () {
             let p = new Node();
@@ -689,4 +690,87 @@ describe('model/Node', function () {
             expect(o).to.be.same([ d, d2, d3 ]);
         });
     }); // tagName index
+
+    describe('composite attributes', function () {
+        class N extends Node {}
+
+        N.defineAttribute('alias[|]', null);
+
+        let doc, node;
+
+        beforeEach(function () {
+            doc = Document.create();
+            node = new N();
+            doc.appendChild(node);
+        });
+        afterEach(function () {
+            doc = node = null;
+        });
+
+        it('should register properly', function () {
+            let a = N.getAttribute('alias');
+
+            expect(a.multiline).to.be(false);
+            expect(a.composite).to.be(true);
+        });
+
+        it('should store even single values as arrays', function () {
+            node.setAttribute('alias', 'foo');
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo' ]);
+        });
+
+        it('should split multiple values into an array', function () {
+            node.setAttribute('alias', 'foo|bar');
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar' ]);
+        });
+
+        it('should accept multiple values as an array', function () {
+            node.setAttribute('alias', ['foo','bar']);
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar' ]);
+        });
+
+        it('should store a single value with a location', function () {
+            node.setAttribute('alias', 'foo', new Location('Foo.js', 123, 42));
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc).to.have.length(1);
+            expect(loc[0].toString()).to.be('Foo.js:123:42');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0,123,42');
+        });
+
+        it('should store multiple values with a location', function () {
+            node.setAttribute('alias', 'foo|bar', new Location('Foo.js', 123, 42));
+
+            let a = node.getAttribute('alias');
+
+            expect(a).to.equal([ 'foo', 'bar' ]);
+
+            let loc = node.getAttributeLocation('alias');
+            expect(loc).to.be.an('array');
+
+            expect(loc).to.have.length(2);
+            expect(loc[0].toString()).to.be('Foo.js:123:42');
+            expect(loc[1].toString()).to.be('Foo.js:123:46');
+
+            let src = node.getAttributeSrc('alias');
+            expect(src).to.be('0,123,42:0,123,46');
+        });
+    });
 });
