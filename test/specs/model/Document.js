@@ -8,7 +8,6 @@ const expect = Assert.expect;
 const File = require('phylo');
 
 // const Location = require('../../../lib/model/Location');
-// const Sources = require('../../../lib/model/Sources');
 // const Node = require('../../../lib/model/Node');
 const Document = require('../../../lib/model/Document');
 
