@@ -37,10 +37,10 @@ describe('model/Document', function () {
 
             expect(foo.isAbsolute()).to.be(true);
 
-            let i = doc.getFileIndex(foo);
+            let i = doc.getFileId(foo);
             expect(i).to.be(0);
 
-            i = doc.getFileIndex(bar);
+            i = doc.getFileId(bar);
             expect(i).to.be(1);
 
             expect(doc.files.length).to.be(2);

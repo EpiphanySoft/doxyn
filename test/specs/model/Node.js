@@ -704,10 +704,10 @@ describe('model/Node', function () {
             node = new N();
             doc.appendChild(node);
 
-            doc.getFileIndex(doc.baseDir.join('A.js'));
-            doc.getFileIndex(doc.baseDir.join('B.js'));
-            doc.getFileIndex(doc.baseDir.join('C.js'));
-            doc.getFileIndex(doc.baseDir.join('D.js'));
+            doc.getFile(doc.baseDir.join('A.js'));
+            doc.getFile(doc.baseDir.join('B.js'));
+            doc.getFile(doc.baseDir.join('C.js'));
+            doc.getFile(doc.baseDir.join('D.js'));
         });
 
         afterEach(function () {
@@ -843,10 +843,10 @@ describe('model/Node', function () {
         it('should append multiple values with a Location', function () {
             node.setAttribute('alias', 'foo|bar', [
                 new Location(doc.getFile(0), 1, 2),
-                new Location(doc.getAbsoluteFile(1), 11, 22)
+                new Location(doc.resolveFile(1), 11, 22)
             ]);
             node.appendAttribute('alias', 'woot|derp', [
-                new Location(doc.getAbsoluteFile(3), 4, 42),
+                new Location(doc.resolveFile(3), 4, 42),
                 new Location(doc.getFile(2), 44, 427)
             ]);
 
@@ -870,7 +870,7 @@ describe('model/Node', function () {
         it('should append multiple values with a Location then a src', function () {
             node.setAttribute('alias', 'foo|bar', [
                 new Location(doc.getFile(0), 1, 2),
-                new Location(doc.getAbsoluteFile(1), 11, 22)
+                new Location(doc.resolveFile(1), 11, 22)
             ]);
             node.appendAttribute('alias', 'woot|derp', '3:12:42|2:300:10');
 
@@ -902,7 +902,7 @@ describe('model/Node', function () {
         it('should append multiple values with a src then a Location', function () {
             node.setAttribute('alias', 'foo|bar', '0:1:2|1:10:20');
             node.appendAttribute('alias', 'woot|derp', [
-                new Location(doc.getAbsoluteFile(3), 4, 42),
+                new Location(doc.resolveFile(3), 4, 42),
                 new Location(doc.getFile(2), 44, 427)
             ]);
 
