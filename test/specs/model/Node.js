@@ -924,6 +924,50 @@ describe('model/Node', function () {
         });
     }); // composite attributes
 
+    describe('multiline attributes', function () {
+        let doc, node;
+
+        beforeEach(function () {
+            doc = Document.create();
+            doc.baseDir = __dirname;
+            node = new Node();
+            doc.appendChild(node);
+
+            doc.getFile(doc.baseDir.join('A.js'));
+            doc.getFile(doc.baseDir.join('B.js'));
+            doc.getFile(doc.baseDir.join('C.js'));
+            doc.getFile(doc.baseDir.join('D.js'));
+        });
+
+        afterEach(function () {
+            doc = node = null;
+        });
+
+        it('should register properly', function () {
+            let a = Node.getAttribute('text');
+
+            expect(a.multiline).to.be(true);
+            expect(a.composite).to.be(false);
+        });
+
+        it('should store a single value', function () {
+            node.setAttribute('text', 'foo');
+
+            let a = node.getAttribute('text');
+
+            expect(a).to.be('foo');
+        });
+
+        it('should concatenate and store multiple values', function () {
+            node.setAttribute('text', 'foo');
+            node.appendAttribute('text', 'bar');
+
+            let a = node.getAttribute('text');
+
+            expect(a).to.be('foobar');
+        });
+    });
+
     describe('ownerDocument', function () {
         let doc, node;
 

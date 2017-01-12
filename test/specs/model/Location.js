@@ -39,7 +39,9 @@ describe('model/Location', function () {
             expect(f.line).to.be(-1);
             expect(f.column).to.be(-1);
         });
-    });
+    }); // from
+
+    //TODO null handling esp null file in Location
 
     describe('new with path, line, column', function () {
         beforeEach(function () {
