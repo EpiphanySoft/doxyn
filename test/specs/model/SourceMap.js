@@ -109,7 +109,7 @@ describe('model/SourceMap', function () {
             it('should parse a 3-tuple', function () {
                 let c = Chunk.from('123:456:789');
 
-                expect(c.fileIndex).to.be(123);
+                expect(c.fileId).to.be(123);
                 expect(c.line).to.be(456);
                 expect(c.column).to.be(789);
                 expect(c.length).to.be(-1);
@@ -118,7 +118,7 @@ describe('model/SourceMap', function () {
             it('should parse a 4-tuple', function () {
                 let c = Chunk.from('123:456:789:2468');
 
-                expect(c.fileIndex).to.be(123);
+                expect(c.fileId).to.be(123);
                 expect(c.line).to.be(456);
                 expect(c.column).to.be(789);
                 expect(c.length).to.be(2468);
