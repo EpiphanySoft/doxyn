@@ -922,5 +922,49 @@ describe('model/Node', function () {
             let src = node.getAttributeSrc('alias');
             expect(src).to.be('0:1:2|1:10:20|3:4:42|2:44:427');
         });
+    }); // composite attributes
+
+    describe('ownerDocument', function () {
+        let doc, node;
+
+        beforeEach(function () {
+            doc = Document.create();
+            doc.baseDir = __dirname;
+            node = new Node();
+            doc.appendChild(node);
+
+            doc.getFile(doc.baseDir.join('A.js'));
+            doc.getFile(doc.baseDir.join('B.js'));
+            doc.getFile(doc.baseDir.join('C.js'));
+            doc.getFile(doc.baseDir.join('D.js'));
+        });
+
+        afterEach(function () {
+            doc = node = null;
+        });
+
+        it('should update src on change', function () {
+            let doc2 = Document.create();
+
+            doc2.baseDir = doc.baseDir.join('foo/bar');
+
+            expect(node.ownerDocument).to.be(doc);
+            node.setAttribute('foo', 42, new Location('D.js', 10, 123));
+            let src = node.getAttributeSrc('foo');
+            expect(src).to.be('3:10:123');
+
+            expect(doc2.files.length).to.be(0);
+
+            doc2.appendChild(node);
+
+            expect(node.ownerDocument).to.not.be(doc);
+            expect(node.ownerDocument).to.be(doc2);
+            src = node.getAttributeSrc('foo');
+            expect(src).to.be('0:10:123');
+            expect(doc2.files.length).to.be(1);
+
+            let fd = doc2.getFile(0);
+            expect(fd.path).to.be('../../D.js');
+        });
     });
 });
